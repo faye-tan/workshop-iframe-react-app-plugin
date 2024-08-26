@@ -16,7 +16,7 @@ import { IConfigDefinitionFields } from "../types/configDefinition";
 
 export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
     fields: {
-        ["stringField1"]: {
+        stringField1: {
             type: "single",
             isRequired: true, 
             fieldType: {
@@ -30,19 +30,215 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             }, 
             label: "String input field", 
         }, 
-        ["stringField2"]: {
+        field2: {
             type: "single",
-            isRequired: false, 
+            isRequired: true,
+            label: "required number field input",
             fieldType: {
-                type: "input", 
+                type: "input",
                 inputVariable: {
-                    variableType: { 
+                    variableType: {
+                        type: "number",
+                    },
+                },
+            },
+        },
+        field3: {
+            type: "single",
+            isRequired: false,
+            label: "optional boolean field output",
+            fieldType: {
+                type: "output",
+                outputVariable: {
+                    variableType: {
                         type: "boolean",
                     },
-                    defaultValue: false,
                 },
-            }, 
-            label: "Boolean input field", 
-        }
+            },
+        },
+        field4: {
+            type: "single",
+            isRequired: true,
+            label: "required date field input",
+            fieldType: {
+                type: "input",
+                inputVariable: {
+                    variableType: {
+                        type: "date",
+                    },
+                },
+            },
+        },
+        field5: {
+            type: "single",
+            isRequired: false,
+            label: "optional timestamp field output",
+            fieldType: {
+                type: "output",
+                outputVariable: {
+                    variableType: {
+                        type: "timestamp",
+                    },
+                },
+            },
+        },
+        field6: {
+            type: "single",
+            isRequired: true,
+            label: "required objectSet field input",
+            fieldType: {
+                type: "input",
+                inputVariable: {
+                    variableType: {
+                        type: "objectSet",
+                    },
+                },
+            },
+        },
+        field7: {
+            type: "single",
+            isRequired: false,
+            label: "optional array string field output",
+            fieldType: {
+                type: "output",
+                outputVariable: {
+                    variableType: {
+                        type: "array",
+                        arraySubType: {
+                            type: "string",
+                        },
+                    },
+                },
+            },
+        },
+        field8: {
+            type: "single",
+            isRequired: true,
+            label: "required array number field input",
+            fieldType: {
+                type: "input",
+                inputVariable: {
+                    variableType: {
+                        type: "array",
+                        arraySubType: {
+                            type: "number",
+                        },
+                    },
+                },
+            },
+        },
+        field9: {
+            type: "single",
+            isRequired: false,
+            label: "optional array boolean field output",
+            fieldType: {
+                type: "output",
+                outputVariable: {
+                    variableType: {
+                        type: "array",
+                        arraySubType: {
+                            type: "boolean",
+                        },
+                    },
+                },
+            },
+        },
+        field10: {
+            type: "single",
+            isRequired: true,
+            label: "required array date field output",
+            fieldType: {
+                type: "output",
+                outputVariable: {
+                    variableType: {
+                        type: "array",
+                        arraySubType: {
+                            type: "date",
+                        },
+                    },
+                },
+            },
+        },
+        field11: {
+            type: "single",
+            isRequired: false,
+            label: "optional array timestamp field output",
+            fieldType: {
+                type: "output",
+                outputVariable: {
+                    variableType: {
+                        type: "array",
+                        arraySubType: {
+                            type: "timestamp",
+                        },
+                    },
+                },
+            },
+        },
+        field12: {
+            type: "single",
+            isRequired: true,
+            label: "required struct field input",
+            fieldType: {
+                type: "input",
+                inputVariable: {
+                    variableType: {
+                        type: "struct",
+                        structFieldTypes: [
+                            {
+                                fieldId: "struct-field-1",
+                                fieldType: {
+                                    type: "string",
+                                },
+                            },
+                            {
+                                fieldId: "struct-field-2",
+                                fieldType: {
+                                    type: "boolean",
+                                },
+                            },
+                        ],
+                    },
+                },
+            },
+        },
+        event1: {
+            type: "single",
+            isRequired: true,
+            label: "Events",
+            fieldType: {
+                type: "event",
+            },
+        },
+        list1: {
+            type: "listOf",
+            label: "List of config fields",
+            addButtonText: "Add another entry to list",
+            maxLength: 4,
+            config: {
+                field1InList1: {
+                    type: "single",
+                    isRequired: true, 
+                    fieldType: {
+                        type: "input", 
+                        inputVariable: {
+                            variableType: { 
+                                type: "string",
+                            },
+                            defaultValue: "test"
+                        },
+                    }, 
+                    label: "String input field", 
+                }, 
+                event1InList1: {
+                    type: "single",
+                    isRequired: true,
+                    label: "Events",
+                    fieldType: {
+                        type: "event",
+                    },
+                },
+            },
+        },
     }
 }

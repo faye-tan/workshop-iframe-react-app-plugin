@@ -35,7 +35,7 @@ export interface ISendingConfigToWorkshopMessage {
 export interface ISettingWorkshopValue {
     type: MESSAGE_TYPES_TO_WORKSHOP.SETTING_VALUE; 
     configFieldId: string; 
-    value: any; // TODO
+    value: any; // Value is type checked in method 
 }
 
 export interface IExecutingWorkshopEvent {
@@ -47,26 +47,29 @@ export interface IExecutingWorkshopEvent {
  * Messages that can be recieved from Workshop 
  */
 export type IMessageFromWorkshop = 
-    IRecievingDefaultValuesFromWorkshopMessage | 
+    IWorkshopReceivedConfigMessage | 
     IValueChangeFromWorkshopMessage;
-export interface IRecievingDefaultValuesFromWorkshopMessage {
-    type: MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_RECIEVED;  
-    configDefaultVals: { [id: string]: any;  };
+export interface IWorkshopReceivedConfigMessage {
+    type: MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_RECIEVED; 
 }
         
 export interface IValueChangeFromWorkshopMessage {
     type: MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE; 
     valueLocator: ValueLocator; 
-    value: any; 
+    value: any; // Value is type checked in method
 }
 
-// Path to value
+/**
+ * Represents the path to a value in the config
+ */
 export type ValueLocator = IValueLocator_Single | IValueLocator_ListOf; 
 export interface IValueLocator_Single {
     type: "single"; 
     configFieldId: string; 
 }
-// config[configFieldId][index][locator]
+/**
+ * Traverses tho the configFieldId which should be a listOf, and then indexes into it and continues traversing along the path to the value. 
+ */
 export interface IValueLocator_ListOf {
     type: "listOf"; 
     configFieldId: string; 

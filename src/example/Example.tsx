@@ -13,19 +13,34 @@
  * limitations under the License.
  */
 import React from "react";
-import { isAsyncStatusLoaded, isAsyncStatusLoading } from "../types/loadingState";
-import { WorkshopContextPlugin } from "../WorkshopContextPlugin"
+import { isAsyncStatusLoaded, isAsyncStatusLoading } from '../types/loadingState';
+import { useWorkshopContext } from "../WorkshopContextPlugin"
 import { EXAMPLE_CONFIG_DEFINITION } from "./exampleConfigDefinition";
 
 export const Example: React.FC<{}> = props => {
-    const workshopContext = new WorkshopContextPlugin(EXAMPLE_CONFIG_DEFINITION).getContext();
+    const workshopContext = useWorkshopContext(EXAMPLE_CONFIG_DEFINITION);
+
+    const setValue = React.useCallback(() => {
+        if (isAsyncStatusLoaded(workshopContext)) {
+            workshopContext.value.setValue({
+                type: "listOf",
+                configFieldId: "list1", 
+                index: 1, 
+                locator: {
+                    type: "single",
+                    configFieldId: "field1InList1"
+                }
+            }, "test"); 
+        }
+    }, []);
 
     if (isAsyncStatusLoading(workshopContext)) {
         return <>Loading...</>; 
     } if (isAsyncStatusLoaded(workshopContext)) {
-        const stringValue = workshopContext.value.inputValues["stringField1"]; 
-        workshopContext.value.executeEvent("test");
-        return <>{stringValue}</>;
+        const valuesMap = workshopContext.value.getValuesMap(); 
+        const stringValue = valuesMap["stringField1"].value; 
+        workshopContext.value.executeEvent({ type: "single", configFieldId: "test" });
+        return <div onClick={setValue}>{stringValue}</div>;
     }
     
     return <>Something went wrong, context failed.</>

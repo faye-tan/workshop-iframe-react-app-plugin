@@ -13,92 +13,38 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-import { IConfigDefinitionFields, isValueOfVariableType, IVariableType, IVariableValue } from "./types/configDefinition";
-import { asyncStatusLoaded, asyncStatusLoading, IAsyncStatus, isAsyncStatusLoaded } from './types/loadingState';
-import { IMessageFromWorkshop, IMessageToWorkshop, IValueLocator_Single, MESSAGE_TYPES_FROM_WORKSHOP, MESSAGE_TYPES_TO_WORKSHOP, ValueLocator } from "./types/messages";
-import { IContextVariableType } from "./types/contextVariable";
-import { isBoolean, isDate, isNumber, isString } from "lodash-es";
+import { IConfigDefinitionFields } from "./types/configDefinition";
+import { IVariableType } from "./types/variableTypes";
+import { asyncStatusLoaded, asyncStatusLoading, IAsyncStatus } from './types/loadingState';
+import { IMessageToWorkshop, IWorkshopReceivedConfigMessage, IValueChangeFromWorkshopMessage, MESSAGE_TYPES_TO_WORKSHOP, ValueLocator } from './types/messages';
+import React from "react";
+import { isValueOfVariableType, VariableValue } from "./types/variableValues";
 
+function sendMessageToWorkshop(message: IMessageToWorkshop) {
+    window.postMessage(JSON.stringify(message), "*");
+}
+ 
 /**
- * function version 
+ * Returns a WorkshopContext in an async wrapper, which when is loaded can be used to reference input values, set output values, and execute events in Workshop. 
  */
-// export function useWorkshopContext(configDefinition: IConfigDefinitionFields): IAsyncStatus<IWorkshopContext<IConfigDefinitionFields["fields"]>> {
-//     const [initializedListener, setInitializedListener] = React.useState<boolean>(false);
-//     const [configReceivedByParent, setConfigReceivedByParent] = React.useState<boolean>(false);
+export function useWorkshopContext(configFields: IConfigDefinitionFields): IAsyncStatus<WorkshopContext> {
+    const [isListenerInitialized, setIsListenerInitialized] = React.useState<boolean>(false);
+    const [workshopContext, setWorkshopContext] = React.useState<IAsyncStatus<WorkshopContext>>(asyncStatusLoading()); 
 
-//     const context = new WorkshopContext(configDefinition); 
+    /**
+     * Once on mount, initialize listeners and send config to Workshop
+     */
+    React.useEffect(() => {
+        sendConfigDefinitionToWorkshop(configFields);  // TODO what if configFields input changes?? 
+        initializeListeners();
+    }, []);
 
-//     const isValidOrigin = (origin: string): boolean => {
-//         try {
-//             const newUrl = new URL(origin);
-//             return window.location.origin === newUrl.origin;
-//         } catch (_error) {
-//             return false;
-//         }
-//     }
-
-//     const messageHandler = (event: MessageEvent<IMessageFromWorkshop>) => {
-//         if (!isValidOrigin(event.origin)) {
-//             return; 
-//         }
-
-//         const message = event.data;
-//         switch (message.type) {
-//             case MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_RECIEVED: 
-//                 setConfigReceivedByParent(true);  
-//                 // TODO
-//                 return; 
-//             case MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE: 
-//                 const id = message.id; 
-//                 // TODO 
-//                 return; 
-//         }
-//     }
-
-//     const initializeListeners = React.useCallback(() => {
-//         if (this.initializeListeners) {
-//             return; 
-//         }
-
-//         window.addEventListener("message", messageHandler); 
-//     }, []); 
-
-//     // On mount, send config definition
-//     React.useEffect(() => {
-//         initializeListeners(); 
-//     }, []);
-
-//     const isInIframe = React.useMemo(() => { 
-//         // TODO verify this
-//         return window.self.location.origin !== "https://swirl-containers.palantirfoundry.com";
-//     }, []); 
-
-//     // if (!isInIframe) {
-//     //     return asyncStatusLoaded(); 
-//     // }
-
-//     return asyncStatusLoading();
-// }
-
-/**
- * Context manager class to receive and send information with Workshop. 
- */
-export class WorkshopContextPlugin { 
-    private initializedListener = false;
-
-    /** Contains the context from which to retrieve values, set values, and execute events */
-    private context: IAsyncStatus<ConfigLayer> = asyncStatusLoading(); 
-
-    /** The config definition provided */
-    private configDefinition: IConfigDefinitionFields;
-
-    constructor(configDefinition: IConfigDefinitionFields) {
-        this.initializeListeners(); 
-        this.sendConfigDefinitionToWorkshop(configDefinition); 
-    }
-
-    public getContext() {
-        return this.context; 
+    const initializeListeners = () => {
+        if (isListenerInitialized) {
+            return; 
+        }
+        window.addEventListener("message", handleWorkshopReceivedConfigMessage);
+        setIsListenerInitialized(true);
     }
 
     /**
@@ -106,32 +52,27 @@ export class WorkshopContextPlugin {
      * If it's on a brand new iframe widget, the definition gets saved
      * If it's on an existing iframe widget, the definition gets reconciled with the saved definition. 
      */
-    private sendConfigDefinitionToWorkshop(configDefinition: IConfigDefinitionFields) {
-        this.sendMessageToWorkshop({
+    const sendConfigDefinitionToWorkshop = (configFields: IConfigDefinitionFields) => {
+        sendMessageToWorkshop({
             type: MESSAGE_TYPES_TO_WORKSHOP.SENDING_CONFIG, 
-            config: configDefinition, 
+            config: configFields, 
         })
-    }
+    } 
 
-    // TODO, consolidate with other method
-    private sendMessageToWorkshop(message: IMessageToWorkshop) {
-        window.postMessage(JSON.stringify(message), "*"); // TODO fix this
+    /**
+     * Only receives a message of type IWorkshopReceivedConfigMessage. 
+     */
+    const handleWorkshopReceivedConfigMessage = (_event: MessageEvent<IWorkshopReceivedConfigMessage>) => {
+        createConfigFromConfigFields(configFields.fields); 
     }
 
     /**
-     * Convert the given config definition into the context, filled in with default values. 
+     * Convert the given config definition into config layers, filled in with default values. 
      */
-    private initializeContext(configFields: IConfigDefinitionFields["fields"]) {
+    const createConfigFromConfigFields = (configFields: IConfigDefinitionFields["fields"]) => {
         const eventIds = new Set<string>(); 
-        const inputValues: {
-            [id: string]: {
-                variableType: IVariableType, 
-                value?: any,
-            }; // TODO: strongly type
-        } = {}; 
-        const outputValueTypes: {
-            [id: string]: IContextVariableType;
-        } = {}; 
+        const inputValues: { [configFieldId: string]: { variableType: IVariableType, value?: VariableValue } } = {}; 
+        const outputValueTypes: { [id: string]: IVariableType } = {}; 
         const listOfConfigs: { [id: string]: ConfigLayer[] } = {};
 
         Object.entries(configFields).forEach(([fieldId, field]) => {
@@ -144,7 +85,7 @@ export class WorkshopContextPlugin {
                         case "input": 
                             inputValues[fieldId] = { 
                                 variableType: field.fieldType.inputVariable.variableType, 
-                                value: field.fieldType.inputVariable.defaultValue, 
+                                value: field.fieldType.inputVariable.defaultValue,
                             }; 
                             return;
                         case "output": 
@@ -152,11 +93,31 @@ export class WorkshopContextPlugin {
                             return; 
                     }
                 case "listOf": 
-                    listOfConfigs[fieldId] = Array(field.maxLength).fill(this.initializeContext(field.config));
+                    listOfConfigs[fieldId] = Array(field.maxLength).fill(createConfigFromConfigFields(field.config));
                     return; 
             }
-        }); 
-        this.context = asyncStatusLoaded(new ConfigLayer(inputValues, listOfConfigs, outputValueTypes, eventIds)); 
+        });
+
+        const mainConfigLayer = new ConfigLayer(inputValues, listOfConfigs, outputValueTypes, eventIds); 
+
+        setWorkshopContext(asyncStatusLoaded(new WorkshopContext(mainConfigLayer))); 
+    }
+
+    return workshopContext; 
+}
+
+/**
+ * Context manager class to receive and send information with Workshop. 
+ */
+class WorkshopContext { 
+    private initializedListener = false;
+
+    /** Contains the context from which to retrieve values, set values, and execute events */
+    private mainConfigLayer: ConfigLayer;
+
+    constructor(mainConfigLayer: ConfigLayer) {
+        this.initializeListeners(); 
+        this.mainConfigLayer = mainConfigLayer; 
     }
 
     /**
@@ -173,32 +134,19 @@ export class WorkshopContextPlugin {
     /**
      * Handle messages recieved from Workshop. 
      */
-    private messageHandler = (event: MessageEvent<IMessageFromWorkshop>) => {
+    private messageHandler = (event: MessageEvent<IValueChangeFromWorkshopMessage>) => {
         const message = event.data;
-        switch (message.type) {
-            // Once we confirm from Workshop that the config has been sucessfully recieved, the context can be initialized
-            case MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_RECIEVED: 
-                this.initializeContext(this.configDefinition.fields); 
-                break; 
-
-    
-            case MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE: 
-                const valueLocator = message.valueLocator; 
-                const value = message.value; 
-                if (isAsyncStatusLoaded(this.context)) {
-                    this.changeValue(this.context.value, valueLocator, value);
-                }
-                break;
-        }
+        const valueLocator = message.valueLocator; 
+        const value = message.value; 
+        this.changeValue(this.mainConfigLayer, valueLocator, value);
     }
 
     /**
      * Traverses context based on value locator to change the value in the context.
      */
-    // Should this be on the context object level?? 
-    private changeValue(context: ConfigLayer, valueLocator: ValueLocator, value: any) {
+    private changeValue(context: ConfigLayer, valueLocator: ValueLocator, value?: VariableValue) {
         switch (valueLocator.type) {
-            case ("single"): 
+            case "single": 
                 const variableType = context.inputValues[valueLocator.configFieldId].variableType; 
                 // Only change value if type is right 
                 if (isValueOfVariableType(variableType, value)) {
@@ -209,50 +157,61 @@ export class WorkshopContextPlugin {
                 }
                 break;
                     
-            case ("listOf"): // TODO check 
+            case "listOf":
                 this.changeValue(context.listOfConfigs[valueLocator.configFieldId][valueLocator.index], valueLocator.locator, value);
                 break; 
         }
-        
+    }
+
+    /**
+     * Traverses context based on value locator to execute an event in the context.
+     */
+    public executeEvent(valueLocator: ValueLocator): Promise<void> {
+        return this.mainConfigLayer.executeEvent(valueLocator);
+    }
+
+    /**
+     * Traverses context based on value locator to execute an event in the context.
+     */
+    public setValue(valueLocator: ValueLocator, value?: VariableValue): Promise<void> {
+        return this.mainConfigLayer.setValue(valueLocator, value); 
+    }
+
+    /**
+     * 
+     */
+    public getValuesMap() {
+        return this.mainConfigLayer.inputValues;
     }
 }
 
-// type ConfigLayerV2<T extends IConfigDefinitionFields> = {
-//     eventIds: IEventIds<T["fields"]>; 
-// }
-
-// type IEventIds<T extends IConfigDefinitionFields["fields"]> = {
-//     [key in keyof T]: T[key] extends { type: "single" } 
-//         ? (T[key]["fieldType"] extends { type: "event" } ? () => void : never)
-//         : never; 
-// }
-
-interface IConfigLayer {
-    setValue: (configFieldId: string, value: any) => Promise<void>; 
-    executeEvent: (eventId: string) => Promise<void>; 
-}
-
-class ConfigLayer implements IConfigLayer{
-    private eventIds: Set<string>; 
+class ConfigLayer {
+    /** Keeps track of the valid eventIds that can execute events in Workshop. */
+    readonly eventIds: Set<string>; 
+    
+    /** A map of single values, referenced by their fieldId. The type is stored along with the value to enforce type checking. */
     readonly inputValues: {
             [id: string]: {
                 variableType: IVariableType, 
-                value?: any,
-            }; // TODO: strongly type value? 
+                value?: VariableValue,
+            }; 
         }; 
-    private outputValueTypes: {
-            [id: string]: IContextVariableType;
+    
+    /** Keeps track of the valid output value types that can be set in Workshop when setting values. */
+    readonly outputValueTypes: {
+            [id: string]: IVariableType;
         }
-    // TODO ?? 
-    public listOfConfigs: { [id: string]: ConfigLayer[] }; 
+    
+    /** To 'move into another layer' of the config, like enter a list this contains more config layers. */
+    readonly listOfConfigs: { [id: string]: ConfigLayer[] }; 
 
     constructor(inputValues: {
         [id: string]: {
             variableType: IVariableType, 
-            value?: any,
-        }; // TODO: strongly type;
+            value?: VariableValue,
+        }; 
     }, listOfConfigs: { [id: string]: ConfigLayer[] }, outputValueTypes: {
-        [id: string]: IContextVariableType;
+        [id: string]: IVariableType;
     }, eventIds: Set<string>) {
         this.inputValues = inputValues;
         this.listOfConfigs = listOfConfigs;
@@ -260,38 +219,75 @@ class ConfigLayer implements IConfigLayer{
         this.eventIds = eventIds;
     }
 
-    public setValue(configFieldId: string, value: any): Promise<void> {
-        if (this.outputValueTypes[configFieldId] == null) {
-            return Promise.reject("Output field does not exist in config definition and cannot be set."); 
-        } else if (this.outputValueTypes[configFieldId].type != value) { // check value type
-            return Promise.reject(`${value} type cannot be set for output field ${configFieldId} which has type ${this.outputValueTypes[configFieldId].type}`);
+    /**
+     * Returns a config layer inside a listOf config, or undefined if not found.
+     */
+    public getConfigInListOfConfig(listOfFieldId: string, indexOfListConfig: number): ConfigLayer | undefined {
+        if (this.listOfConfigs[listOfFieldId] !== null && indexOfListConfig < this.listOfConfigs[listOfFieldId].length - 1 ) {
+            return this.listOfConfigs[listOfFieldId][listOfFieldId];
         }
-        this.sendMessageToWorkshop({
-            type: MESSAGE_TYPES_TO_WORKSHOP.SETTING_VALUE,
-            configFieldId, 
-            value, 
-        }); 
-        return Promise.resolve(); 
+        return undefined; 
     }
 
-    public executeEvent(eventId: string): Promise<void> {
-        if (!this.eventIds.has(eventId)) {
-            return Promise.reject(`Event with id ${eventId} does not exist in config definition and cannot be executed.`);
+    /**
+     * Returns a resolved Promise if the set value request was successfully sent to Workshop, and rejects if the value to set is invalid.
+     */
+    public setValue(valueLocator: ValueLocator, value?: VariableValue): Promise<void> {
+        return this.setValueOnLayer(this, valueLocator, value);
+    }
+
+    private setValueOnLayer(context: ConfigLayer, valueLocator: ValueLocator, value?: VariableValue): Promise<void> {
+        switch (valueLocator.type) {
+            case "single": 
+                if (this.outputValueTypes[valueLocator.configFieldId] == null) {
+                    return Promise.reject("Output field does not exist in config definition and cannot be set."); 
+                } else if (this.outputValueTypes[valueLocator.configFieldId].type != value) { // check value type
+                    return Promise.reject(`${value} type cannot be set for output field ${valueLocator.configFieldId} which has type ${this.outputValueTypes[valueLocator.configFieldId].type}`);
+                }
+                this.sendMessageToWorkshop({
+                    type: MESSAGE_TYPES_TO_WORKSHOP.SETTING_VALUE,
+                    configFieldId: valueLocator.configFieldId, 
+                    value, 
+                }); 
+                return Promise.resolve(); 
+                    
+            case "listOf": 
+                const contextInListOf = context.getConfigInListOfConfig(valueLocator.configFieldId, valueLocator.index); 
+                if (contextInListOf != null) {
+                    return this.setValueOnLayer(contextInListOf, valueLocator.locator, value);
+                }
+                return Promise.reject(`Unable to set value while traversing a listOf config, as ${valueLocator.configFieldId} with index ${valueLocator.index} does not exist`); 
+        } 
+    }
+
+    /**
+     * Returns a resolved Promise if the event was successfully sent to Workshop to execute, and rejects if the event to execute ID is not valid.
+     */
+    public executeEvent(valueLocator: ValueLocator): Promise<void> {
+        return this.executeEventOnLayer(this, valueLocator);
+    }
+
+    private executeEventOnLayer(context: ConfigLayer, valueLocator: ValueLocator): Promise<void> {
+        switch (valueLocator.type) {
+            case "single": 
+                if (!this.eventIds.has(valueLocator.configFieldId)) {
+                    return Promise.reject(`Event with id ${valueLocator.configFieldId} does not exist in config definition and cannot be executed.`); 
+                }
+                sendMessageToWorkshop({
+                    type: MESSAGE_TYPES_TO_WORKSHOP.EXECUTING_EVENT, 
+                    eventId: valueLocator.configFieldId,
+                })
+                return Promise.resolve(); 
+            case "listOf": 
+                const contextInListOf = context.getConfigInListOfConfig(valueLocator.configFieldId, valueLocator.index); 
+                if (contextInListOf != null) {
+                    return this.executeEventOnLayer(contextInListOf, valueLocator.locator);
+                }
+                return Promise.reject(`Unable to execute event with eventId while traversing a listOf config, as ${valueLocator.configFieldId} with index ${valueLocator.index} does not exist`); 
         }
-        this.sendMessageToWorkshop({
-            type: MESSAGE_TYPES_TO_WORKSHOP.EXECUTING_EVENT, 
-            eventId,
-        })
-        return Promise.resolve(); 
     }
 
     private sendMessageToWorkshop(message: IMessageToWorkshop) {
-        window.postMessage(JSON.stringify(message), "*"); // TODO fix this
+        window.postMessage(JSON.stringify(message), "*");
     }
-}
-
-type ConfigValue = IValue | ConfigLayer; 
-interface IValue {
-    type: "value"; 
-    value: string | boolean | number; 
 }

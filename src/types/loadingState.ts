@@ -13,6 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
+
+/**
+ * Final composite 'async' loading types. 
+ */
 export type IAsyncStatus<V, E = unknown> = 
     | IAsyncStatus_NotStarted
     | IAsyncStatus_Loading
@@ -37,18 +41,27 @@ interface IAsyncStatus_Failed<E> {
     error: E; 
 }
 
+/**
+ * State that represents that loading has not yet started. 
+ */
 export function asyncStatusNotStarted(): IAsyncStatus_NotStarted {
     return {
         status: undefined, 
     };
 }
 
+/**
+ * State that represents that loading is in progress. 
+ */
 export function asyncStatusLoading(): IAsyncStatus_Loading {
     return {
         status: "loading",
     }
 }
 
+/**
+ * State that represents that loading has completed. 
+ */
 export function asyncStatusLoaded<V>(value: V): IAsyncStatus_Loaded<V> {
     return {
         status: "loaded", 
@@ -56,6 +69,9 @@ export function asyncStatusLoaded<V>(value: V): IAsyncStatus_Loaded<V> {
     }
 }
 
+/**
+ * State that represents that there was a failure and loading could not be completed.
+ */
 export function asyncStatusFailed<E>(error: E): IAsyncStatus_Failed<E> {
     return {
         status: "failed", 
