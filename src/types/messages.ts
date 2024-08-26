@@ -15,6 +15,7 @@ limitations under the License.
  */
 
 import { IConfigDefinitionFields } from "./configDefinition";
+import { VariableValue } from "./variableValues";
 
 /**
  * Messages to send to Workshop.
@@ -35,7 +36,7 @@ export interface ISendingConfigToWorkshopMessage {
 export interface ISettingWorkshopValue {
     type: MESSAGE_TYPES_TO_WORKSHOP.SETTING_VALUE; 
     configFieldId: string; 
-    value: any; // Value is type checked in method 
+    value: VariableValue;
 }
 
 export interface IExecutingWorkshopEvent {
@@ -56,7 +57,7 @@ export interface IWorkshopReceivedConfigMessage {
 export interface IValueChangeFromWorkshopMessage {
     type: MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE; 
     valueLocator: ValueLocator; 
-    value: any; // Value is type checked in method
+    value: VariableValue; // Value is type checked in method
 }
 
 /**

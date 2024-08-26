@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { isString, isBoolean, isNumber, isDate } from "lodash-es";
 import { 
     IVariableType_String, 
     IVariableType_Boolean, 
@@ -21,7 +20,6 @@ import {
     IVariableType_Timestamp, 
     IVariableType_Struct, 
     IVariableType_ObjectSet, 
-    IVariableType 
 } from "./variableTypes";
 
 interface ObjectSet {
@@ -37,7 +35,7 @@ type SingleVariableValue =
     | ObjectSet
     | StructValue;
 export type VariableValue = SingleVariableValue | SingleVariableValue[];
-interface StructValue {
+export interface StructValue {
     structFields: { [structFieldId: string]: VariableValue };
 }
 
@@ -132,43 +130,3 @@ T extends "with-default"
             objectRid: string; 
         } }
         : { variableType: IVariableType_ObjectSet }; 
-
-export function isStruct(structType: IVariableType_Struct, value?: any): value is IVariableValue_Struct<"with-value">["value"] {
-    if (value != null && value["structFields"] != null && typeof value["structFields"] === "object") {
-        return Object.entries(value["structFields"]).every(([structFieldId, structFieldValue]) => {
-            if (!isString(structFieldId)) {
-                return false 
-            }
-            const structTypeField = structType.structFieldTypes.find(structTypeField => structTypeField.fieldId === structFieldId); 
-            if (structTypeField != null) {
-                return isValueOfVariableType(structTypeField.fieldType, structFieldValue);
-            }
-            return true; 
-        });
-    } 
-    return false; 
-}
-
-export function isValueOfVariableType(variableType: IVariableType, value?: any): boolean {
-    switch (variableType.type) {
-        case "string": 
-            return isString(value);
-        case "boolean": 
-            return isBoolean(value);
-        case "number": 
-            return isNumber(value);
-        case "date": 
-            return isDate(value);
-        case "timestamp": 
-            return isDate(value);
-        case "array": 
-            if (Array.isArray(value)) {
-                return value.every(val => isValueOfVariableType(variableType.arraySubType, val));
-            }   
-            return false; 
-        case "struct": 
-            return isStruct(variableType, value); 
-        case "objectSet":
-            return typeof value === "object" && isString(value["objectTypeId"]) && isString(value["objectRid"]);  
-    }
-}
