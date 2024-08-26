@@ -1,0 +1,27 @@
+{
+  "name": "workhop-iframe-react-app-plugin",
+  "version": "1.0.0",
+  "description": "Workshop plugin to enable bidirectional communication Workshop and any custom React app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faye-tan/workhop-iframe-react-app-plugin.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/faye-tan/workhop-iframe-react-app-plugin/issues"
+  },
+  "homepage": "https://github.com/faye-tan/workhop-iframe-react-app-plugin#readme",
+  "dependencies": {
+    "lodash-es": "^4.17.21",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@types/react": "^18.3.4"
+  }
+}
