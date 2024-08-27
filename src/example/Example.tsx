@@ -14,7 +14,7 @@
  */
 import React from "react";
 import { isAsyncStatusLoaded, isAsyncStatusLoading } from '../types/loadingState';
-import { useWorkshopContext } from "../WorkshopContextPlugin"
+import { useWorkshopContext } from "../useWorkshopContext";
 import { EXAMPLE_CONFIG_DEFINITION } from "./exampleConfigDefinition";
 
 export const Example: React.FC<{}> = props => {
@@ -40,7 +40,7 @@ export const Example: React.FC<{}> = props => {
         const valuesMap = workshopContext.value.getValuesMap(); 
         const stringValue = valuesMap["stringField1"].value; 
         workshopContext.value.executeEvent({ type: "single", configFieldId: "test" });
-        return <div onClick={setValue}>{stringValue}</div>;
+        return <div onClick={setValue}>{stringValue?.toString()}</div>;
     }
     
     return <>Something went wrong, context failed.</>

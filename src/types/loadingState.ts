@@ -93,6 +93,6 @@ export function isAsyncStatusLoaded<V, E>(state: IAsyncStatus<V, E> | undefined)
     return state != null && state.status === "loaded";
 }
 
-export function isFailedLoading<V, E>(state: IAsyncStatus<V, E> | undefined): state is IAsyncStatus_Failed<E> {
+export function isAsyncStatusFailedLoading<V, E>(state: IAsyncStatus<V, E> | undefined): state is IAsyncStatus_Failed<E> {
     return state != null && state.status === "failed";
 }

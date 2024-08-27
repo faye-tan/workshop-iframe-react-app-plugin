@@ -21,12 +21,10 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             isRequired: true, 
             fieldType: {
                 type: "input", 
-                inputVariable: {
-                    variableType: { 
-                        type: "string",
-                    },
-                    defaultValue: "test"
+                inputVariableType: {
+                    type: "string",
                 },
+                defaultValue: "test",
             }, 
             label: "String input field", 
         }, 
@@ -36,11 +34,10 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             label: "required number field input",
             fieldType: {
                 type: "input",
-                inputVariable: {
-                    variableType: {
-                        type: "number",
-                    },
+                inputVariableType: {
+                    type: "number",    
                 },
+                defaultValue: 100,
             },
         },
         field3: {
@@ -49,10 +46,8 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             label: "optional boolean field output",
             fieldType: {
                 type: "output",
-                outputVariable: {
-                    variableType: {
-                        type: "boolean",
-                    },
+                outputVariableType: {
+                    type: "boolean",
                 },
             },
         },
@@ -62,10 +57,8 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             label: "required date field input",
             fieldType: {
                 type: "input",
-                inputVariable: {
-                    variableType: {
-                        type: "date",
-                    },
+                inputVariableType: {
+                    type: "date",
                 },
             },
         },
@@ -75,10 +68,8 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             label: "optional timestamp field output",
             fieldType: {
                 type: "output",
-                outputVariable: {
-                    variableType: {
-                        type: "timestamp",
-                    },
+                outputVariableType: {
+                    type: "timestamp",    
                 },
             },
         },
@@ -88,10 +79,8 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             label: "required objectSet field input",
             fieldType: {
                 type: "input",
-                inputVariable: {
-                    variableType: {
-                        type: "objectSet",
-                    },
+                inputVariableType: {
+                    type: "objectSet",
                 },
             },
         },
@@ -101,12 +90,10 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             label: "optional array string field output",
             fieldType: {
                 type: "output",
-                outputVariable: {
-                    variableType: {
-                        type: "array",
-                        arraySubType: {
-                            type: "string",
-                        },
+                outputVariableType: {
+                    type: "array",
+                    arraySubType: {
+                        type: "string",
                     },
                 },
             },
@@ -117,13 +104,11 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             label: "required array number field input",
             fieldType: {
                 type: "input",
-                inputVariable: {
-                    variableType: {
-                        type: "array",
-                        arraySubType: {
-                            type: "number",
-                        },
-                    },
+                inputVariableType: {
+                    type: "array",
+                    arraySubType: {
+                        type: "number",
+                    },            
                 },
             },
         },
@@ -133,12 +118,10 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             label: "optional array boolean field output",
             fieldType: {
                 type: "output",
-                outputVariable: {
-                    variableType: {
-                        type: "array",
-                        arraySubType: {
-                            type: "boolean",
-                        },
+                outputVariableType: {
+                    type: "array",
+                    arraySubType: {
+                        type: "boolean",
                     },
                 },
             },
@@ -149,12 +132,10 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             label: "required array date field output",
             fieldType: {
                 type: "output",
-                outputVariable: {
-                    variableType: {
-                        type: "array",
-                        arraySubType: {
-                            type: "date",
-                        },
+                outputVariableType: {
+                    type: "array",
+                    arraySubType: {
+                        type: "date",
                     },
                 },
             },
@@ -165,12 +146,10 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             label: "optional array timestamp field output",
             fieldType: {
                 type: "output",
-                outputVariable: {
-                    variableType: {
-                        type: "array",
-                        arraySubType: {
-                            type: "timestamp",
-                        },
+                outputVariableType: {
+                    type: "array",
+                    arraySubType: {
+                        type: "timestamp",
                     },
                 },
             },
@@ -181,24 +160,22 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
             label: "required struct field input",
             fieldType: {
                 type: "input",
-                inputVariable: {
-                    variableType: {
-                        type: "struct",
-                        structFieldTypes: [
-                            {
-                                fieldId: "struct-field-1",
-                                fieldType: {
-                                    type: "string",
-                                },
+                inputVariableType: {
+                    type: "struct",
+                    structFieldTypes: [
+                        {
+                            fieldId: "struct-field-1",
+                            fieldType: {
+                                type: "string",
                             },
-                            {
-                                fieldId: "struct-field-2",
-                                fieldType: {
-                                    type: "boolean",
-                                },
+                        },
+                        {
+                            fieldId: "struct-field-2",
+                            fieldType: {
+                                type: "boolean",
                             },
-                        ],
-                    },
+                        },
+                    ],
                 },
             },
         },
@@ -221,11 +198,8 @@ export const EXAMPLE_CONFIG_DEFINITION: IConfigDefinitionFields = {
                     isRequired: true, 
                     fieldType: {
                         type: "input", 
-                        inputVariable: {
-                            variableType: { 
-                                type: "string",
-                            },
-                            defaultValue: "test"
+                        inputVariableType: {
+                            type: "string",
                         },
                     }, 
                     label: "String input field", 

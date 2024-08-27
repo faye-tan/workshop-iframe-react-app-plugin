@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
+import { asyncStatusLoaded } from '../types/loadingState';
 import { IValueChangeFromWorkshopMessage, ValueLocator } from '../types/messages';
 import { VariableValue } from "../types/variableValues";
 import { isValueOfVariableType } from '../utils';
@@ -64,7 +65,7 @@ export class WorkshopContext {
                 if (isValueOfVariableType(variableType, value)) {
                     context.inputValues[valueLocator.configFieldId] = { 
                         ...context.inputValues[valueLocator.configFieldId], 
-                        value,
+                        value: asyncStatusLoaded(value),
                     }; 
                 }
                 break;

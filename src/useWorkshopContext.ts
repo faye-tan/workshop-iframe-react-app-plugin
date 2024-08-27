@@ -71,7 +71,7 @@ export function useWorkshopContext(configFields: IConfigDefinitionFields): IAsyn
      */
     const createConfigFromConfigFields = (configFields: IConfigDefinitionFields["fields"]) => {
         const eventIds = new Set<string>(); 
-        const inputValues: { [configFieldId: string]: { variableType: IVariableType, value?: VariableValue } } = {}; 
+        const inputValues: { [configFieldId: string]: { variableType: IVariableType, value: IAsyncStatus<VariableValue | undefined> } } = {}; 
         const outputValueTypes: { [id: string]: IVariableType } = {}; 
         const listOfConfigs: { [id: string]: ContextConfigLayer[] } = {};
 
@@ -84,12 +84,12 @@ export function useWorkshopContext(configFields: IConfigDefinitionFields): IAsyn
                             return;
                         case "input": 
                             inputValues[fieldId] = { 
-                                variableType: field.fieldType.inputVariable.variableType, 
-                                value: field.fieldType.inputVariable.defaultValue,
+                                variableType: field.fieldType.inputVariableType, 
+                                value: asyncStatusLoaded(field.fieldType.defaultValue),
                             }; 
                             return;
                         case "output": 
-                            outputValueTypes[fieldId] = field.fieldType.outputVariable.variableType;
+                            outputValueTypes[fieldId] = field.fieldType.outputVariableType;
                             return; 
                     }
                 case "listOf": 

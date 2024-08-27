@@ -17,6 +17,7 @@ import { ValueLocator, MESSAGE_TYPES_TO_WORKSHOP } from "../types/messages";
 import { IVariableType } from "../types/variableTypes";
 import { VariableValue } from "../types/variableValues";
 import { sendMessageToWorkshop } from "../utils";
+import { asyncStatusLoaded, IAsyncStatus } from '../types/loadingState';
 
 /**
  * Represents a layer in the config. These are nesting to keep track of config layers in listOf configs.
@@ -29,7 +30,7 @@ export class ContextConfigLayer {
     readonly inputValues: {
             [id: string]: {
                 variableType: IVariableType, 
-                value?: VariableValue,
+                value: IAsyncStatus<VariableValue | undefined>,
             }; 
         }; 
     
@@ -44,7 +45,7 @@ export class ContextConfigLayer {
     constructor(inputValues: {
         [id: string]: {
             variableType: IVariableType, 
-            value?: VariableValue,
+            value: IAsyncStatus<VariableValue | undefined>,
         }; 
     }, listOfConfigs: { [id: string]: ContextConfigLayer[] }, outputValueTypes: {
         [id: string]: IVariableType;
@@ -60,7 +61,7 @@ export class ContextConfigLayer {
      */
     public getConfigInListOfConfig(listOfFieldId: string, indexOfListConfig: number): ContextConfigLayer | undefined {
         if (this.listOfConfigs[listOfFieldId] !== null && indexOfListConfig < this.listOfConfigs[listOfFieldId].length - 1 ) {
-            return this.listOfConfigs[listOfFieldId][listOfFieldId];
+            return this.listOfConfigs[listOfFieldId][indexOfListConfig];
         }
         return undefined; 
     }

@@ -12,7 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IVariableValue } from "./variableValues";
+
+import { IVariableType } from "./variableTypes";
+import { VariableValue } from "./variableValues";
 
 export interface IConfigDefinitionFields {
     fields: { [id: string]: IConfigDefinitionField };
@@ -46,12 +48,13 @@ export type IConfigDefinitionFieldType =
 
 export interface IConfigDefinitionFieldType_Input {
     type: "input";
-    inputVariable: IVariableValue<"with-default">;
+    inputVariableType: IVariableType;
+    defaultValue?: VariableValue; // type checked during initialization
 }
 
 export interface IConfigDefinitionFieldType_Output {
     type: "output";
-    outputVariable: IVariableValue<"type-only">;
+    outputVariableType: IVariableType;
 }
 
 export interface IConfigDefinitionFieldType_Event {

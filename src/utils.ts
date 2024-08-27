@@ -16,7 +16,7 @@ limitations under the License.
 import { isString, isBoolean, isNumber, isDate } from "lodash-es";
 import { IMessageToWorkshop } from "./types/messages";
 import { IVariableType_Struct, IVariableType } from "./types/variableTypes";
-import { IVariableValue, IVariableValue_Struct, StructValue, VariableValue } from "./types/variableValues";
+import { StructValue, VariableValue } from "./types/variableValues";
 
 /**
  * Sends a message to Workshop through the window. 
