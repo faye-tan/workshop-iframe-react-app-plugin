@@ -1,7 +1,7 @@
 {
   "name": "workhop-iframe-react-app-plugin",
   "version": "1.0.0",
-  "description": "Workshop plugin to enable bidirectional communication Workshop and any custom React app",
+  "description": "Library to enable bi-directional communication between Workshop and any custom React app",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
