@@ -348,4 +348,4 @@ export const EXAMPLE_CONFIG_DEFINITION = [
             ],
         },
     }
-] as const;
+] as const; // This const assertion is mandatory! 

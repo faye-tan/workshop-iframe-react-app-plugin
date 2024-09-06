@@ -55,7 +55,7 @@ type StronglyTypedSetterFunction<T extends IVariableType> = (value: VariableType
  * The API consumers of useWorkshopContext have access to. 
  * - values: the input values Workshop sends 
  * - changeValue: a function to change an output value in Workshop
- * - executeEvent: 
+ * - executeEvent: a function to execute an event in Workshop
  */
 type IWorkshopContext<T extends IConfigDefinition> = {
     [K in T[number] as K["fieldId"]]: 
@@ -147,7 +147,7 @@ export function useWorkshopContext<T extends IConfigDefinition>(configFields: T)
                     result[fieldId] = field.fieldType.value;
                 } else if (field.fieldType.type === "output") {
                     result[fieldId] = { 
-                        setValue: createSetValueCallback(fieldId), // TODO switch this out for specific type functions
+                        setValue: createSetValueCallback(fieldId),
                     } as SettableValue<typeof field.fieldType.outputVariableType>;
                 } else if (field.fieldType.type === "event") {
                     result[fieldId] = {
