@@ -12,9 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// Note that if you use camel case or snake case you can use dot notation later
-// Otherwise, you need to use square bracket notation 
+/**
+ * This is an example config definition that shows a mix of input/output variable types
+ * in single fields as well as listOf config fields. 
+ * 
+ * Note that if you use camel case or snake case you can use dot notation later
+ * Otherwise, you need to use square bracket notation 
+ */
 export const EXAMPLE_CONFIG_DEFINITION = [
     {
         fieldId: "inputStringField", 
