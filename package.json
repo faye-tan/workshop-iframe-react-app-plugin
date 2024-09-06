@@ -1,5 +1,5 @@
 {
-  "name": "workhop-iframe-react-app-plugin",
+  "name": "workhop-iframe-react-app-library",
   "version": "1.0.0",
   "description": "Library to enable bi-directional communication between Workshop and any custom React app",
   "main": "index.js",
