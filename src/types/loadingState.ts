@@ -21,23 +21,29 @@ export type IAsyncStatus<V, E = unknown> =
     | IAsyncStatus_NotStarted
     | IAsyncStatus_Loading
     | IAsyncStatus_Loaded<V>
+    | IAsyncStatus_Reloading<V>
     | IAsyncStatus_Failed<E>;
 
 interface IAsyncStatus_NotStarted {
-    status: "not-started" | undefined; 
+    status: "NOT_STARTED" | undefined; 
 }
 
 interface IAsyncStatus_Loading {
-    status: "loading"; 
+    status: "LOADING"; 
 }
 
 interface IAsyncStatus_Loaded<V> {
-    status: "loaded"; 
+    status: "LOADED"; 
     value: V;
 }
 
+interface IAsyncStatus_Reloading<V> {
+    status: "RELOADING"; 
+    value: V; 
+}
+
 interface IAsyncStatus_Failed<E> {
-    status: "failed"; 
+    status: "FAILED"; 
     error: E; 
 }
 
@@ -55,7 +61,7 @@ export function asyncStatusNotStarted(): IAsyncStatus_NotStarted {
  */
 export function asyncStatusLoading(): IAsyncStatus_Loading {
     return {
-        status: "loading",
+        status: "LOADING",
     }
 }
 
@@ -64,7 +70,7 @@ export function asyncStatusLoading(): IAsyncStatus_Loading {
  */
 export function asyncStatusLoaded<V>(value: V): IAsyncStatus_Loaded<V> {
     return {
-        status: "loaded", 
+        status: "LOADED", 
         value, 
     }
 }
@@ -74,7 +80,7 @@ export function asyncStatusLoaded<V>(value: V): IAsyncStatus_Loaded<V> {
  */
 export function asyncStatusFailed<E>(error: E): IAsyncStatus_Failed<E> {
     return {
-        status: "failed", 
+        status: "FAILED", 
         error, 
     }
 }
@@ -82,17 +88,17 @@ export function asyncStatusFailed<E>(error: E): IAsyncStatus_Failed<E> {
 export function isAsyncStatusNotStarted<V, E>(
     state: IAsyncStatus<V, E> | undefined,
 ): state is IAsyncStatus_NotStarted | undefined {
-    return state == null || state.status == null || state.status === "not-started";
+    return state == null || state.status == null || state.status === "NOT_STARTED";
 }
 
 export function isAsyncStatusLoading<V, E>(state: IAsyncStatus<V, E> | undefined): state is IAsyncStatus_Loading {
-    return state != null && state.status === "loading";
+    return state != null && state.status === "LOADING";
 }
 
 export function isAsyncStatusLoaded<V, E>(state: IAsyncStatus<V, E> | undefined): state is IAsyncStatus_Loaded<V> {
-    return state != null && state.status === "loaded";
+    return state != null && state.status === "LOADED";
 }
 
 export function isAsyncStatusFailedLoading<V, E>(state: IAsyncStatus<V, E> | undefined): state is IAsyncStatus_Failed<E> {
-    return state != null && state.status === "failed";
+    return state != null && state.status === "FAILED";
 }

@@ -100,6 +100,7 @@ export const EXAMPLE_CONFIG_DEFINITION = [
                 inputVariableType: {
                     type: "objectSet",
                 },
+                value: undefined,
             },
         },
     }, 
@@ -134,6 +135,7 @@ export const EXAMPLE_CONFIG_DEFINITION = [
                         type: "number",
                     },            
                 },
+                value: undefined,
             },
         },
     }, 
@@ -213,6 +215,7 @@ export const EXAMPLE_CONFIG_DEFINITION = [
                         },
                     ],
                 },
+                value: undefined,
             },
         }
     },
@@ -273,6 +276,7 @@ export const EXAMPLE_CONFIG_DEFINITION = [
                             inputVariableType: {
                                 type: "string",
                             },
+                            value: undefined,
                         }, 
                         label: "String input field", 
                     }, 
@@ -310,7 +314,8 @@ export const EXAMPLE_CONFIG_DEFINITION = [
                                         },
                                     },
                                 ],
-                            }
+                            }, 
+                            value: undefined,
                         }
                     }
                 }, {

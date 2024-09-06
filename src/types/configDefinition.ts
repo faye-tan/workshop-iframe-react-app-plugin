@@ -14,49 +14,42 @@
  */
 
 import { IVariableType } from "./variableTypes";
-import { VariableValue } from "./variableValues";
+import { IVariableValue } from "./variableValues";
 
-export interface IConfigDefinitionFields {
-    fields: { [id: string]: IConfigDefinitionField };
+export type IConfigDefinition = readonly IConfigDefinitionField[];
+export interface IConfigDefinitionField {
+    fieldId: string; 
+    field: IConfigurationFieldType; 
+}
+export type IConfigurationFieldType = IConfigDefinitionFieldType_Single | IConfigDefinitionFieldType_ListOf;
+
+interface IConfigDefinitionFieldType_Single {
+    type: "single"; 
+    isRequired?: boolean; 
+    fieldType: IConfigDefinitionFieldType; 
+    label: string; 
+    helperText?: string; 
 }
 
-export declare type IConfigDefinitionField =
-    | IConfigDefinitionField_Single
-    | IConfigDefinitionField_ListOf;
-
-export interface IConfigDefinitionField_Single {
-    type: "single";
-    isRequired?: boolean;
-    fieldType: IConfigDefinitionFieldType;
-    label: string;
-    helperText?: string;
+type IConfigDefinitionFieldType = IConfigDefinitionFieldType_Input | IConfigDefinitionFieldType_Output | IConfigDefinitionFieldType_Event; 
+interface IConfigDefinitionFieldType_Input {
+    type: "input"; 
+    inputVariableType: IVariableType; 
+    value?: IVariableValue;
+}
+interface IConfigDefinitionFieldType_Output {
+    type: "output"; 
+    outputVariableType: IVariableType; 
+}
+interface IConfigDefinitionFieldType_Event {
+    type: "event"; 
 }
 
-export interface IConfigDefinitionField_ListOf {
+interface IConfigDefinitionFieldType_ListOf {
     type: "listOf";
-    config: IConfigDefinitionFields["fields"];
-    label: string;
-    helperText?: string;
+    config: IConfigDefinition;
+    label: string; 
+    helperText?: string; 
     addButtonText?: string;
-    maxLength: number;
-}
-
-export type IConfigDefinitionFieldType =
-    | IConfigDefinitionFieldType_Input
-    | IConfigDefinitionFieldType_Output
-    | IConfigDefinitionFieldType_Event;
-
-export interface IConfigDefinitionFieldType_Input {
-    type: "input";
-    inputVariableType: IVariableType;
-    defaultValue?: VariableValue; // type checked during initialization
-}
-
-export interface IConfigDefinitionFieldType_Output {
-    type: "output";
-    outputVariableType: IVariableType;
-}
-
-export interface IConfigDefinitionFieldType_Event {
-    type: "event";
+    defaultLength?: number; 
 }

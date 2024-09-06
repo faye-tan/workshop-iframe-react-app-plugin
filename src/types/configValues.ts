@@ -12,19 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-interface ObjectSetValue {
-    objectType: string;
-    objectRid: string; 
-}
 
-type SingleVariableValue =
-    | boolean
-    | number
-    | string
-    | Date
-    | ObjectSetValue
-    | StructValue;
-export type IVariableValue = SingleVariableValue | SingleVariableValue[];
-export interface StructValue {
-    structFields: { [structFieldId: string]: IVariableValue };
+/**
+ * This is the type that Workshop and iframe will pass back and forth
+ */
+import { IVariableValue } from "./variableValues";
+
+export interface IConfigValueMap {
+    [fieldId: string]: IConfigValueType; 
+}
+type IConfigValueType = IConfigValueType_Single | IConfigValueType_ListOf; 
+interface IConfigValueType_Single {
+    value: IVariableValue;
+}
+interface IConfigValueType_ListOf {
+    listOfValues: IConfigValueMap[];
 }

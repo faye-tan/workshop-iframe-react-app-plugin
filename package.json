@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/faye-tan/workhop-iframe-react-app-plugin#readme",
   "dependencies": {
+    "@osdk/client": "^0.21.0",
+    "@osdk/legacy-client": "^2.5.0",
     "lodash-es": "^4.17.21",
     "react": "^18.3.1"
   },

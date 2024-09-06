@@ -68,7 +68,7 @@ export interface IVariableType_Array {
 
 export interface IVariableType_Struct {
     type: "struct";
-    structFieldTypes: IStructVariableFieldTypes[];
+    structFieldTypes: readonly IStructVariableFieldTypes[];
 }
 
 export interface IStructVariableFieldTypes {

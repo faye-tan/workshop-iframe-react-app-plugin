@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-import { IConfigDefinitionFields } from "./configDefinition";
-import { VariableValue } from "./variableValues";
+import { IConfigDefinition } from "./configDefinition";
+import { IVariableValue } from "./variableValues";
 
 /**
  * Messages to send to Workshop.
@@ -30,15 +30,23 @@ export type IMessageToWorkshop =
  */
 export interface ISendingConfigToWorkshopMessage {
     type: MESSAGE_TYPES_TO_WORKSHOP.SENDING_CONFIG;  
-    config: IConfigDefinitionFields;
+    config: IConfigDefinition;
 }
 
+/**
+ * Sets an output config field's value in Workshop. 
+ * Value type checking occurs before this message is sent to verify that the value is the exepcted type. 
+ */
 export interface ISettingWorkshopValue {
     type: MESSAGE_TYPES_TO_WORKSHOP.SETTING_VALUE; 
-    configFieldId: string; 
-    value: VariableValue;
+    // config: IConfigDefinition; TODO
+    fieldId: string; 
+    value: any; 
 }
 
+/**
+ * Executes an event in Workshop.
+ */
 export interface IExecutingWorkshopEvent {
     type: MESSAGE_TYPES_TO_WORKSHOP.EXECUTING_EVENT;
     eventId: string; 
@@ -48,34 +56,34 @@ export interface IExecutingWorkshopEvent {
  * Messages that can be recieved from Workshop 
  */
 export type IMessageFromWorkshop = 
-    IWorkshopReceivedConfigMessage | 
+    IWorkshopAcceptedConfigMessage | 
+    IWorkshopRejectedConfigMessage |
     IValueChangeFromWorkshopMessage;
-export interface IWorkshopReceivedConfigMessage {
-    type: MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_RECIEVED; 
-}
-        
-export interface IValueChangeFromWorkshopMessage {
-    type: MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE; 
-    valueLocator: ValueLocator; 
-    value: VariableValue; // Value is type checked in method
+
+/**
+ * Workshop has accepted the config. 
+ */
+export interface IWorkshopAcceptedConfigMessage {
+    type: MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_ACCEPTED; 
 }
 
 /**
- * Represents the path to a value in the config
+ * Workshop has rejected the config. This occurs when there is a break in the API, and the Workshop iframe widget's saved config fields 
+ * do not match with what was sent by the iframed React app. 
  */
-export type ValueLocator = IValueLocator_Single | IValueLocator_ListOf; 
-export interface IValueLocator_Single {
-    type: "single"; 
-    configFieldId: string; 
+export interface IWorkshopRejectedConfigMessage {
+    type: MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_REJECTED; 
 }
+        
 /**
- * Traverses tho the configFieldId which should be a listOf, and then indexes into it and continues traversing along the path to the value. 
+ * Workshop is alerting that an input value has changed. 
+ * Value type checking occurs before the value change actually takes effect and the value is saved. 
  */
-export interface IValueLocator_ListOf {
-    type: "listOf"; 
-    configFieldId: string; 
-    index: number; 
-    locator: ValueLocator;
+export interface IValueChangeFromWorkshopMessage {
+    type: MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE; 
+    // configValues: IConfigDefinition; TODO
+    fieldId: string; 
+    value: IVariableValue | undefined;
 }
 
 export enum MESSAGE_TYPES_TO_WORKSHOP {
@@ -85,6 +93,7 @@ export enum MESSAGE_TYPES_TO_WORKSHOP {
 }
     
 export enum MESSAGE_TYPES_FROM_WORKSHOP {
-    CONFIG_RECIEVED = "workshop-received-config",
+    CONFIG_ACCEPTED = "workshop-accepted-config",
+    CONFIG_REJECTED = "workshop-did-not-accept-config",
     VALUE_CHANGE = "workshop-value-change", 
 }

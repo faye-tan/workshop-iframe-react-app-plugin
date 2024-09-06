@@ -20,27 +20,32 @@ import { EXAMPLE_CONFIG_DEFINITION } from "./exampleConfigDefinition";
 export const Example: React.FC<{}> = props => {
     const workshopContext = useWorkshopContext(EXAMPLE_CONFIG_DEFINITION);
 
-    const setValue = React.useCallback(() => {
-        if (isAsyncStatusLoaded(workshopContext)) {
-            workshopContext.value.setValue({
-                type: "listOf",
-                configFieldId: "list1", 
-                index: 1, 
-                locator: {
-                    type: "single",
-                    configFieldId: "field1InList1"
-                }
-            }, "test"); 
-        }
-    }, []);
-
     if (isAsyncStatusLoading(workshopContext)) {
         return <>Loading...</>; 
     } if (isAsyncStatusLoaded(workshopContext)) {
-        const valuesMap = workshopContext.value.getValuesMap(); 
-        const stringValue = valuesMap["stringField1"].value; 
-        workshopContext.value.executeEvent({ type: "single", configFieldId: "test" });
-        return <div onClick={setValue}>{stringValue?.toString()}</div>;
+        const loadedContext = workshopContext.value; 
+        
+        // get values 
+        const v1 = loadedContext.inputArrayNumberField; // type is number[] | undefined
+        const v2 = loadedContext.listOfConfigFields[0].inputStringFieldInsideListOf; // type is string | undefined 
+        const v3 = loadedContext["input-struct-field"]; 
+        const test = v3?.structFields["struct-field-1"]; 
+        
+        // set values 
+        loadedContext.output_boolean_field.setValue(true); // input param must be bool 
+        loadedContext.listOfConfigFields[0]["listOf-in-listOf"][0]["output-boolean-array-in-nested-list"].setValue([true, false]); // input param must be bool[]
+        loadedContext["output-struct-field"].setValue({
+            structFields: {
+                "struct-field-1": false,
+                "struct-field-2": true, 
+            }
+        });
+
+        // execute events 
+        loadedContext.event.executeEvent(); 
+        loadedContext.listOfConfigFields[0]["event-in-listOf"].executeEvent();
+
+        return <></>;
     }
     
     return <>Something went wrong, context failed.</>

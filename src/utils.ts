@@ -13,63 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-import { isString, isBoolean, isNumber, isDate } from "lodash-es";
 import { IMessageToWorkshop } from "./types/messages";
-import { IVariableType_Struct, IVariableType } from "./types/variableTypes";
-import { StructValue, VariableValue } from "./types/variableValues";
 
 /**
- * Sends a message to Workshop through the window. 
+ * Sends a message to Workshop through the parent window
  */
 export function sendMessageToWorkshop(message: IMessageToWorkshop) {
-    window.postMessage(JSON.stringify(message), "*");
+    window.parent.postMessage(JSON.stringify(message), "*");
 }
 
 /**
- * Return true only if the value can be resolved to StructValue
+ * Detect whether app is in Dev Console in order to use default values 
  */
-export function isStruct(structType: IVariableType_Struct, value?: VariableValue): value is StructValue {
-    if (value != null && value["structFields"] != null && typeof value["structFields"] === "object") {
-        return Object.entries(value["structFields"]).every(([structFieldId, structFieldValue]) => {
-            if (!isString(structFieldId)) {
-                return false 
-            }
-            const structTypeField = structType.structFieldTypes.find(structTypeField => structTypeField.fieldId === structFieldId); 
-            if (structTypeField != null) {
-                return isValueOfVariableType(structTypeField.fieldType, structFieldValue);
-            }
-            return true; 
-        });
-    } 
-    return false; 
-}
+export function isInsideIframe(): boolean { 
+    // TODO generalize this to all stacks
+    const isIframedInDevConsole = window.self.location.origin !== "https://swirl-containers.palantirfoundry.com";
 
-/**
- * Returns true only if the type of value is of the variableType provided.
- */
-export function isValueOfVariableType(variableType: IVariableType, value?: any): boolean {
-    if (value == null) {
+    // Need try/catch since browsers can block access to window.top due to same origin policy. IE bugs also take place.
+    try {
+        return window.self !== window.top || isIframedInDevConsole;
+    } catch (e) {
         return true;
-    }
-    switch (variableType.type) {
-        case "string": 
-            return isString(value);
-        case "boolean": 
-            return isBoolean(value);
-        case "number": 
-            return isNumber(value);
-        case "date": 
-            return isDate(value);
-        case "timestamp": 
-            return isDate(value);
-        case "array": 
-            if (Array.isArray(value)) {
-                return value.every(val => isValueOfVariableType(variableType.arraySubType, val));
-            }   
-            return false; 
-        case "struct": 
-            return isStruct(variableType, value); 
-        case "objectSet":
-            return typeof value === "object" && isString(value["objectTypeId"]) && isString(value["objectRid"]);  
     }
 }
