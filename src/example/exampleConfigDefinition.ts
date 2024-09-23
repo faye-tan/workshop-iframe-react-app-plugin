@@ -1,25 +1,6 @@
-/**
- * Copyright 2024 Palantir Technologies, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/**
- * This is an example config definition that shows a mix of input/output variable types
- * in single fields as well as listOf config fields. 
- * 
- * Note that if you use camel case or snake case you can use dot notation later
- * Otherwise, you need to use square bracket notation 
- */
-export const EXAMPLE_CONFIG_DEFINITION = [
+import { IVariableValue } from "../types/variableValues";
+
+export const COMPREHENSIVE_EXAMPLE_CONFIG = [
     {
         fieldId: "inputStringField", 
         field: {
@@ -32,35 +13,36 @@ export const EXAMPLE_CONFIG_DEFINITION = [
                 },
                 value: "test",
             }, 
-            label: "String input field", 
+            label: "Input string (title)", 
         }, 
     }, 
     {
-        fieldId: "input-number-field",
+        fieldId: "inputNumberField",
         field: {
             type: "single",
             isRequired: true,
-            label: "required number field input",
+            label: "Input number",
             fieldType: {
                 type: "input",
                 inputVariableType: {
                     type: "number",    
                 },
-                value: 100,
+                value: 25,
             },
         },
     }, 
     {
-        fieldId: "output_boolean_field",
+        fieldId: "inputBooleanField",
         field: {
             type: "single",
-            isRequired: false,
-            label: "optional boolean field output",
+            isRequired: true,
+            label: "Input boolean",
             fieldType: {
-                type: "output",
-                outputVariableType: {
-                    type: "boolean",
+                type: "input",
+                inputVariableType: {
+                    type: "boolean",    
                 },
+                value: true,
             },
         },
     }, 
@@ -69,7 +51,7 @@ export const EXAMPLE_CONFIG_DEFINITION = [
         field: {
             type: "single",
             isRequired: true,
-            label: "required date field input",
+            label: "Input date",
             fieldType: {
                 type: "input",
                 inputVariableType: {
@@ -80,47 +62,49 @@ export const EXAMPLE_CONFIG_DEFINITION = [
         },
     }, 
     {
-        fieldId: "output-timestamp-field",
-        field: {
-            type: "single",
-            isRequired: false,
-            label: "optional timestamp field output",
-            fieldType: {
-                type: "output",
-                outputVariableType: {
-                    type: "timestamp",    
-                },
-            },
-        },
-    }, 
-    {
-        fieldId: "input-objectSet-field",
+        fieldId: "input-timestamp-field",
         field: {
             type: "single",
             isRequired: true,
-            label: "required objectSet field input",
+            label: "Input timestamp",
             fieldType: {
                 type: "input",
                 inputVariableType: {
-                    type: "objectSet",
+                    type: "timestamp",
+                },
+                value: Date.now(),
+            },
+        },
+    }, 
+    {
+        fieldId: "inputObjectSet-field", 
+        field: {
+            type: "single",
+            isRequired: true,
+            label: "Input object set",
+            fieldType: {
+                type: "input",
+                inputVariableType: {
+                    type: "objectSet",       
                 },
             },
         },
     }, 
     {
-        fieldId: "output-array-string-field", 
+        fieldId: "inputArrayStringField", 
         field: {
             type: "single",
-            isRequired: false,
-            label: "optional array string field output",
+            isRequired: true,
+            label: "Input string list",
             fieldType: {
-                type: "output",
-                outputVariableType: {
-                    type: "array",
-                    arraySubType: {
+                type: "input",
+                inputVariableType: {
+                    type: "list",
+                    valueType: {
                         type: "string",
-                    },
+                    },            
                 },
+                value: ["hello", "world"] as IVariableValue,
             },
         },
     }, 
@@ -129,66 +113,70 @@ export const EXAMPLE_CONFIG_DEFINITION = [
         field: {
             type: "single",
             isRequired: true,
-            label: "required array number field input",
+            label: "Input number list",
             fieldType: {
                 type: "input",
                 inputVariableType: {
-                    type: "array",
-                    arraySubType: {
+                    type: "list",
+                    valueType: {
                         type: "number",
                     },            
                 },
+                value: [1, 3] as IVariableValue,
             },
         },
     }, 
     {
-        fieldId: "outputarray-boolean-field", 
-        field: {
-            type: "single",
-            isRequired: false,
-            label: "optional array boolean field output",
-            fieldType: {
-                type: "output",
-                outputVariableType: {
-                    type: "array",
-                    arraySubType: {
-                        type: "boolean",
-                    },
-                },
-            },
-        },
-    },
-    {
-        fieldId: "output-array-date-field", 
+        fieldId: "inputArrayBooleanField", 
         field: {
             type: "single",
             isRequired: true,
-            label: "required array date field output",
+            label: "Input boolean list",
             fieldType: {
-                type: "output",
-                outputVariableType: {
-                    type: "array",
-                    arraySubType: {
-                        type: "date",
-                    },
+                type: "input",
+                inputVariableType: {
+                    type: "list",
+                    valueType: {
+                        type: "boolean",
+                    },            
                 },
+                value: [true, false] as IVariableValue,
             },
         },
     }, 
     {
-        fieldId: "output-array-timestamp-field", 
+        fieldId: "inputArrayDateField", 
         field: {
             type: "single",
-            isRequired: false,
-            label: "optional array timestamp field output",
+            isRequired: true,
+            label: "Input date list",
             fieldType: {
-                type: "output",
-                outputVariableType: {
-                    type: "array",
-                    arraySubType: {
-                        type: "timestamp",
-                    },
+                type: "input",
+                inputVariableType: {
+                    type: "list",
+                    valueType: {
+                        type: "date",
+                    },            
                 },
+                value: [] as IVariableValue, 
+            },
+        },
+    }, 
+    {
+        fieldId: "inputArrayTimestampField", 
+        field: {
+            type: "single",
+            isRequired: true,
+            label: "Input timestamp list",
+            fieldType: {
+                type: "input",
+                inputVariableType: {
+                    type: "list",
+                    valueType: {
+                        type: "timestamp",
+                    },            
+                },
+                value: [] as IVariableValue,
             },
         },
     }, 
@@ -197,7 +185,7 @@ export const EXAMPLE_CONFIG_DEFINITION = [
         field: {
             type: "single",
             isRequired: true,
-            label: "required struct field input",
+            label: "Input struct",
             fieldType: {
                 type: "input",
                 inputVariableType: {
@@ -216,16 +204,179 @@ export const EXAMPLE_CONFIG_DEFINITION = [
                             },
                         },
                     ],
-                    value: {
-                        structFields: {
-                            ["struct-field-1"]: "test", 
-                            ["struct-field-2"]: true,
-                        }
-                    }
                 },
             },
         }
     },
+    {
+        fieldId: "outputStringField",
+        field: {
+            type: "single",
+            isRequired: true,
+            label: "Output string",
+            fieldType: {
+                type: "output",
+                outputVariableType: {
+                    type: "string",    
+                },
+            },
+        },
+    }, 
+    {
+        fieldId: "output-number-field",
+        field: {
+            type: "single",
+            isRequired: true,
+            label: "Output number",
+            fieldType: {
+                type: "output",
+                outputVariableType: {
+                    type: "number",    
+                },
+            },
+        },
+    }, 
+    {
+        fieldId: "output_boolean_field",
+        field: {
+            type: "single",
+            isRequired: false,
+            label: "Ouptut boolean",
+            fieldType: {
+                type: "output",
+                outputVariableType: {
+                    type: "boolean",
+                },
+            },
+        },
+    }, 
+    {
+        fieldId: "output-date-field",
+        field: {
+            type: "single",
+            isRequired: false,
+            label: "Output date",
+            fieldType: {
+                type: "output",
+                outputVariableType: {
+                    type: "date",    
+                },
+            },
+        },
+    }, 
+    {
+        fieldId: "output-timestamp-field",
+        field: {
+            type: "single",
+            isRequired: false,
+            label: "Output timestamp",
+            fieldType: {
+                type: "output",
+                outputVariableType: {
+                    type: "timestamp",    
+                },
+            },
+        },
+    }, 
+    {
+        fieldId: "output-objectSet-field",
+        field: {
+            type: "single",
+            isRequired: true,
+            label: "Output object set",
+            fieldType: {
+                type: "output",
+                outputVariableType: {
+                    type: "objectSet",
+                },
+            },
+        },
+    }, 
+    {
+        fieldId: "output-list-string-field", 
+        field: {
+            type: "single",
+            isRequired: false,
+            label: "Output string list",
+            fieldType: {
+                type: "output",
+                outputVariableType: {
+                    type: "list",
+                    valueType: {
+                        type: "string",
+                    },
+                },
+            },
+        },
+    }, 
+    {
+        fieldId: "outputarray-boolean-field", 
+        field: {
+            type: "single",
+            isRequired: false,
+            label: "Output boolean list",
+            fieldType: {
+                type: "output",
+                outputVariableType: {
+                    type: "list",
+                    valueType: {
+                        type: "boolean",
+                    },
+                },
+            },
+        },
+    },
+    {
+        fieldId: "outputarray-number-field", 
+        field: {
+            type: "single",
+            isRequired: false,
+            label: "Output number list",
+            fieldType: {
+                type: "output",
+                outputVariableType: {
+                    type: "list",
+                    valueType: {
+                        type: "number",
+                    },
+                },
+            },
+        },
+    },
+    {
+        fieldId: "output-list-date-field", 
+        field: {
+            type: "single",
+            isRequired: true,
+            label: "Output date list",
+            fieldType: {
+                type: "output",
+                outputVariableType: {
+                    type: "list",
+                    valueType: {
+                        type: "date",
+                    },
+                },
+            },
+        },
+    }, 
+    {
+        fieldId: "output-list-timestamp-field", 
+        field: {
+            type: "single",
+            isRequired: false,
+            label: "Output timestamp list",
+            fieldType: {
+                type: "output",
+                outputVariableType: {
+                    type: "list",
+                    valueType: {
+                        type: "timestamp",
+                    },
+                },
+            },
+        },
+    }, 
     {
         fieldId: "output-struct-field", 
         field: {
@@ -332,16 +483,16 @@ export const EXAMPLE_CONFIG_DEFINITION = [
                         defaultLength: 2, 
                         config: [
                             {
-                                fieldId: "output-boolean-array-in-nested-list",
+                                fieldId: "output-boolean-list-in-nested-list",
                                 field: {
                                     type: "single", 
                                     isRequired: true, 
-                                    label: "Output boolean array in nested list", 
+                                    label: "Output boolean list in nested list", 
                                     fieldType: {
                                         type: "output", 
                                         outputVariableType: {
-                                            type: "array", 
-                                            arraySubType: { 
+                                            type: "list", 
+                                            valueType: { 
                                                 type: "boolean",
                                             }
                                         }
@@ -354,4 +505,4 @@ export const EXAMPLE_CONFIG_DEFINITION = [
             ],
         },
     }
-] as const; // This const assertion is mandatory! 
+] as const;

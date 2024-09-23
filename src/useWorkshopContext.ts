@@ -36,8 +36,8 @@ type VariableTypeToValueType<T extends IVariableType> = T extends { type: "strin
             ? number 
             : T extends { type: "date" } | { type: "timestamp" }
                 ? Date
-                : T extends { type: "array" }
-                    ? VariableTypeToValueType<T["arraySubType"]>[]
+                : T extends { type: "list" }
+                    ? VariableTypeToValueType<T["valueType"]>[]
                     : T extends { type: "struct", structFieldTypes: readonly IStructVariableFieldTypes[] }
                         ? { structFields: { [K in T['structFieldTypes'][number]['fieldId']]: VariableTypeToValueType<ExtractFieldType<T['structFieldTypes'], K>> | undefined } }
                         : never; 
