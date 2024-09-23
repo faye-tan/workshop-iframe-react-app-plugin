@@ -216,6 +216,12 @@ export const EXAMPLE_CONFIG_DEFINITION = [
                             },
                         },
                     ],
+                    value: {
+                        structFields: {
+                            ["struct-field-1"]: "test", 
+                            ["struct-field-2"]: true,
+                        }
+                    }
                 },
             },
         }

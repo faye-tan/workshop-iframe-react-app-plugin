@@ -26,17 +26,17 @@ export const Example: React.FC<{}> = props => {
         const loadedContext = workshopContext.value; 
         
         // get values 
-        const v1 = loadedContext.inputArrayNumberField; // type is number[] | undefined
+        const inputArrayNumberVariable = loadedContext["input-number-field"]; // type is number[] | undefined
         const v2 = loadedContext.listOfConfigFields[0].inputStringFieldInsideListOf; // type is string | undefined 
         const v3 = loadedContext["input-struct-field"]; 
         const test = v3?.structFields["struct-field-1"];  // TODO This is not working 100% yet
         
         // set values 
-        loadedContext.output_boolean_field.setValue(true); // input param must be bool 
-        loadedContext.listOfConfigFields[0]["listOf-in-listOf"][0]["output-boolean-array-in-nested-list"].setValue([true, false]); // input param must be bool[]
+        loadedContext.output_boolean_field.setValue(true); // input param must be bool or compiler will err
+        loadedContext.listOfConfigFields[0]["listOf-in-listOf"][0]["output-boolean-array-in-nested-list"].setValue([true, false]); // input param must be bool[] or compiler will err
         loadedContext["output-struct-field"].setValue({ // TODO this is not working 100% yet 
             structFields: {
-                "struct-field-1": false,
+                "struct-field-1": "false",
                 "struct-field-2": true, 
             }
         });
@@ -45,7 +45,7 @@ export const Example: React.FC<{}> = props => {
         loadedContext.event.executeEvent(); 
         loadedContext.listOfConfigFields[0]["event-in-listOf"].executeEvent();
 
-        return <></>;
+        return <div onClick={loadedContext.event.executeEvent()}>{inputArrayNumberVariable}</div>;
     }
     
     return <>Something went wrong, context failed.</>

@@ -18,12 +18,12 @@ export type IVariableType =
     | IVariableType_Number
     | IVariableType_Date
     | IVariableType_Timestamp
-    | IVariableType_Array
+    | IVariableType_List
     | IVariableType_Struct
     | IVariableType_ObjectSet;
 
 // Workshop only supports arrays containing the following types
-export type IArrayVariableSubType =
+export type IListVariableSubType =
     | IVariableType_String
     | IVariableType_Boolean
     | IVariableType_Number
@@ -38,7 +38,7 @@ export type IStructVariableFieldType =
     | IVariableType_Number
     | IVariableType_Date
     | IVariableType_Timestamp
-    | IVariableType_Array
+    | IVariableType_List
     | IVariableType_ObjectSet;
 
 export interface IVariableType_String {
@@ -61,9 +61,9 @@ export interface IVariableType_Timestamp {
     type: "timestamp";
 }
 
-export interface IVariableType_Array {
-    type: "array";
-    arraySubType: IArrayVariableSubType;
+export interface IVariableType_List {
+    type: "list";
+    valueType: IListVariableSubType;
 }
 
 export interface IVariableType_Struct {

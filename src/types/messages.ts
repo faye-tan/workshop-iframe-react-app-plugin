@@ -15,7 +15,6 @@ limitations under the License.
  */
 
 import { IConfigDefinition } from "./configDefinition";
-import { IVariableValue } from "./variableValues";
 
 /**
  * Messages to send to Workshop.
@@ -39,8 +38,9 @@ export interface ISendingConfigToWorkshopMessage {
  */
 export interface ISettingWorkshopValue {
     type: MESSAGE_TYPES_TO_WORKSHOP.SETTING_VALUE; 
-    // config: IConfigDefinition; TODO
+    // config: IConfigDefinition;
     fieldId: string; 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any; 
 }
 
@@ -81,9 +81,7 @@ export interface IWorkshopRejectedConfigMessage {
  */
 export interface IValueChangeFromWorkshopMessage {
     type: MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE; 
-    // configValues: IConfigDefinition; TODO
-    fieldId: string; 
-    value: IVariableValue | undefined;
+    configValues: IConfigDefinition;
 }
 
 export enum MESSAGE_TYPES_TO_WORKSHOP {
