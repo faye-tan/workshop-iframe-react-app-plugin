@@ -34,7 +34,8 @@ interface IConfigDefinitionFieldType_Single {
 type IConfigDefinitionFieldType = IConfigDefinitionFieldType_Input | IConfigDefinitionFieldType_Output | IConfigDefinitionFieldType_Event; 
 interface IConfigDefinitionFieldType_Input {
     type: "input"; 
-    inputVariableType: IVariableType; 
+    inputVariableType: IVariableType;
+    /** Set the default value for an input variable */
     value?: IVariableValue;
 }
 interface IConfigDefinitionFieldType_Output {

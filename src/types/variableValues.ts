@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-interface ObjectSetValue {
+interface ObjectSetLocator {
     objectType: string;
-    objectRid: string; 
+    primaryKey: string; 
 }
 
 type SingleVariableValue =
@@ -22,9 +22,9 @@ type SingleVariableValue =
     | number
     | string
     | Date
-    | ObjectSetValue
+    | ObjectSetLocator
     | StructValue;
 export type IVariableValue = SingleVariableValue | SingleVariableValue[];
 export interface StructValue {
-    structFields: { [structFieldId: string]: IVariableValue };
+    structFields: { [structFieldId: string]: IVariableValue | undefined };
 }

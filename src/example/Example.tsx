@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 import React from "react";
-import { isAsyncStatusLoaded, isAsyncStatusLoading } from '../types/loadingState';
+import { isAsyncStatusLoaded, isAsyncStatusLoading, asyncStatusLoaded } from '../types/loadingState';
 import { useWorkshopContext } from "../useWorkshopContext";
 import { COMPREHENSIVE_EXAMPLE_CONFIG } from "./exampleConfigDefinition";
 
-export const Example: React.FC<{}> = props => {
+export const Example: React.FC<{}> = _ => {
     const workshopContext = useWorkshopContext(COMPREHENSIVE_EXAMPLE_CONFIG);
 
     if (isAsyncStatusLoading(workshopContext)) {
@@ -32,14 +32,14 @@ export const Example: React.FC<{}> = props => {
         const test = v3?.structFields["struct-field-1"];  // type is string
         
         // set values 
-        loadedContext.output_boolean_field.setValue(true); // input param must be bool or compiler will err
-        loadedContext.listOfConfigFields[0]["listOf-in-listOf"][0]["output-boolean-list-in-nested-list"].setValue([true, false]); // input param must be bool[] or compiler will err
-        loadedContext["output-struct-field"].setValue({ // TODO this is not working 100% yet 
-            structFields: {
+        loadedContext.output_boolean_field.setValue(asyncStatusLoaded(true)); // input param must be bool or compiler will err
+        loadedContext.listOfConfigFields[0]["listOf-in-listOf"][0]["output-boolean-list-in-nested-list"].setValue(asyncStatusLoaded([true, false])); // input param must be bool[] or compiler will err
+        loadedContext["output-struct-field"].setValue( // TODO this is not working 100% yet 
+            asyncStatusLoaded({ structFields: {
                 "struct-field-1": "false",
                 "struct-field-2": true, 
-            }
-        });
+            }} )
+        );
 
         // execute events 
         loadedContext.event.executeEvent(); 

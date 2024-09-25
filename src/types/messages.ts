@@ -15,6 +15,8 @@ limitations under the License.
  */
 
 import { IConfigDefinition } from "./configDefinition";
+import { IAsyncStatus } from "./loadingState";
+import { IVariableValue } from "./variableValues";
 
 /**
  * Messages to send to Workshop.
@@ -38,10 +40,8 @@ export interface ISendingConfigToWorkshopMessage {
  */
 export interface ISettingWorkshopValue {
     type: MESSAGE_TYPES_TO_WORKSHOP.SETTING_VALUE; 
-    // config: IConfigDefinition;
-    fieldId: string; 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any; 
+    valueLocator: ILocator; 
+    value: IAsyncStatus<IVariableValue>; 
 }
 
 /**
@@ -49,7 +49,7 @@ export interface ISettingWorkshopValue {
  */
 export interface IExecutingWorkshopEvent {
     type: MESSAGE_TYPES_TO_WORKSHOP.EXECUTING_EVENT;
-    eventId: string; 
+    eventLocator: ILocator; 
 }
 
 /**
@@ -65,6 +65,7 @@ export type IMessageFromWorkshop =
  */
 export interface IWorkshopAcceptedConfigMessage {
     type: MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_ACCEPTED; 
+    initialConfigValues: IConfigDefinition;
 }
 
 /**
@@ -94,4 +95,22 @@ export enum MESSAGE_TYPES_FROM_WORKSHOP {
     CONFIG_ACCEPTED = "workshop-accepted-config",
     CONFIG_REJECTED = "workshop-did-not-accept-config",
     VALUE_CHANGE = "workshop-value-change", 
+}
+
+/**
+ * Represents the path to a value in the config
+ */
+export type ILocator = ILocator_Single | ILocator_ListOf;
+export interface ILocator_Single {
+    type: "single";
+    configFieldId: string;
+}
+/**
+ * Traverses tho the configFieldId which should be a listOf, and then indexes into it and continues traversing along the path to the value.
+ */
+export interface ILocator_ListOf {
+    type: "listOf";
+    configFieldId: string;
+    index: number;
+    locator: ILocator;
 }
