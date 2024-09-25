@@ -17,8 +17,8 @@ limitations under the License.
 import React from "react";
 import { IConfigDefinition, IConfigDefinitionField } from "./types/configDefinition";
 import { IAsyncStatus, asyncStatusLoading, asyncStatusLoaded, asyncStatusFailed } from "./types/loadingState";
-import { MESSAGE_TYPES_TO_WORKSHOP, IMessageFromWorkshop, MESSAGE_TYPES_FROM_WORKSHOP } from './types/messages';
-import { isInsideIframe, sendMessageToWorkshop } from "./utils";
+import { IMessageFromWorkshop, MESSAGE_TYPES_FROM_WORKSHOP } from './types/messages';
+import { isInsideIframe, sendConfigDefinitionToWorkshop } from "./utils";
 import { convertConfigToContext } from "./convertConfigToContext";
 import { IWorkshopContext } from "./types/workshopContext";
 
@@ -30,13 +30,13 @@ export function useWorkshopContext<T extends IConfigDefinition>(configFields: T)
 
     // Once on mount, initialize listeners
     React.useEffect(() => {
-        sendConfigDefinitionToWorkshop(configFields);
-        
         if (isListenerInitialized) {
             return; 
         }
         window.addEventListener("message", messageHandler); 
         setIsListenerInitialized(true); 
+
+        sendConfigDefinitionToWorkshop(configFields);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -60,6 +60,9 @@ export function useWorkshopContext<T extends IConfigDefinition>(configFields: T)
             case MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE: 
                 handleValueChangeFromWorkshop(message.configValues);
                 return; 
+            default: 
+                // Ignore otherwise 
+                return;
         }
         
     }
@@ -109,18 +112,6 @@ export function useWorkshopContext<T extends IConfigDefinition>(configFields: T)
             })
         }); 
     }
-
-    /**
-     * Pass the config definition to Workshop
-     * If it's on a brand new iframe widget, the definition gets saved
-     * If it's on an existing iframe widget, the definition gets reconciled with the saved definition. 
-     */
-    const sendConfigDefinitionToWorkshop = (configFields: IConfigDefinition) => {
-        sendMessageToWorkshop({
-            type: MESSAGE_TYPES_TO_WORKSHOP.SENDING_CONFIG, 
-            config: configFields, 
-        })
-    } 
 
     const insideIframe = isInsideIframe();
 

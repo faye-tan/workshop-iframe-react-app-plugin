@@ -13,10 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-import { IMessageToWorkshop } from "./types/messages";
+import { IConfigDefinition } from "./types/configDefinition";
+import { IMessageToWorkshop, MESSAGE_TYPES_TO_WORKSHOP } from "./types/messages";
 
 /**
- * Sends a message to Workshop through the parent window
+ * Sends a message to Workshop through the parent window.
  */
 export function sendMessageToWorkshop(message: IMessageToWorkshop) {
     window.parent.postMessage(JSON.stringify(message), "*");
@@ -36,3 +37,26 @@ export function isInsideIframe(): boolean {
         return true;
     }
 }
+
+/**
+ * Throws an error when a value isn't a `never` as expected. Used for guaranteeing exhaustive checks
+ * and preventing further code from running when in an unexpected state.
+ *
+ * @param message A description of why a `never` type is expected.
+ * @param value   The value that should be `never`.
+ */
+export function assertNever(message: string, value: never): never {
+    throw new Error(`assertNever condition failed: ${message} (${JSON.stringify(value)})`);
+}
+
+/**
+     * Pass the config definition to Workshop
+     * If it's on a brand new iframe widget, the definition gets saved
+     * If it's on an existing iframe widget, the definition gets reconciled with the saved definition. 
+     */
+export function sendConfigDefinitionToWorkshop(configFields: IConfigDefinition) {
+    sendMessageToWorkshop({
+        type: MESSAGE_TYPES_TO_WORKSHOP.SENDING_CONFIG, 
+        config: configFields, 
+    })
+} 

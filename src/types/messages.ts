@@ -22,14 +22,14 @@ import { IVariableValue } from "./variableValues";
  * Messages to send to Workshop.
  */
 export type IMessageToWorkshop = 
-    ISendingConfigToWorkshopMessage | 
-    ISettingWorkshopValue | 
-    IExecutingWorkshopEvent;
+    ISendConfigToWorkshopMessage | 
+    ISetWorkshopValue | 
+    IExecuteWorkshopEvent;
 
 /**
  * Sends the config to Workshop 
  */
-export interface ISendingConfigToWorkshopMessage {
+export interface ISendConfigToWorkshopMessage {
     type: MESSAGE_TYPES_TO_WORKSHOP.SENDING_CONFIG;  
     config: IConfigDefinition;
 }
@@ -38,7 +38,7 @@ export interface ISendingConfigToWorkshopMessage {
  * Sets an output config field's value in Workshop. 
  * Value type checking occurs before this message is sent to verify that the value is the exepcted type. 
  */
-export interface ISettingWorkshopValue {
+export interface ISetWorkshopValue {
     type: MESSAGE_TYPES_TO_WORKSHOP.SETTING_VALUE; 
     valueLocator: ILocator; 
     value: IAsyncStatus<IVariableValue>; 
@@ -47,7 +47,7 @@ export interface ISettingWorkshopValue {
 /**
  * Executes an event in Workshop.
  */
-export interface IExecutingWorkshopEvent {
+export interface IExecuteWorkshopEvent {
     type: MESSAGE_TYPES_TO_WORKSHOP.EXECUTING_EVENT;
     eventLocator: ILocator; 
 }

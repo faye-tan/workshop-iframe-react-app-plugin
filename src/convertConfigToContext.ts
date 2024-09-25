@@ -3,8 +3,14 @@ import { IAsyncStatus } from "./types/loadingState";
 import { ILocator, MESSAGE_TYPES_TO_WORKSHOP } from "./types/messages";
 import { IVariableType } from "./types/variableTypes";
 import { IWorkshopContext, VariableTypeToValueType, SettableValue, ExecutableEvent } from "./types/workshopContext";
-import { sendMessageToWorkshop } from "./utils";
+import { assertNever, sendMessageToWorkshop } from "./utils";
 
+/**
+ * Given the condig definition, convert it to a context object with the desired API for each field depending on the field type. 
+ * - field type of "input" will get an async wrapped value.
+ * - field type of "output" will get a callback to set a value in a variable in Workshop. 
+ * - field type of "event" will get a callback to execute the event in Workshop.
+ */
 export function convertConfigToContext<T extends IConfigDefinition>(config: T, 
     opts?: { 
         createSetValueCallbackInList: (locator: ILocator) => void;
@@ -67,6 +73,8 @@ export function convertConfigToContext<T extends IConfigDefinition>(config: T,
                     createExecuteEventCallbackInList: createExecuteEventCallbackInList(fieldId, index),  
                 }));
                 return; 
+            default: 
+                assertNever("Unknown config field type when converting config to context", field); 
         }
     });
 
