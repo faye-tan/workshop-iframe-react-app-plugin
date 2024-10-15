@@ -15,8 +15,10 @@ limitations under the License.
  */
 
 import { IConfigDefinition } from "./configDefinition";
+import { IConfigValueMap } from "./configValues";
 import { IAsyncStatus } from "./loadingState";
-import { IVariableValue } from "./variableValues";
+import { ILocator } from "./locator";
+import { IVariableToSet } from "./variableValues";
 
 /**
  * Messages to send to Workshop.
@@ -40,8 +42,9 @@ export interface ISendConfigToWorkshopMessage {
  */
 export interface ISetWorkshopValue {
     type: MESSAGE_TYPES_TO_WORKSHOP.SETTING_VALUE; 
+    iframeWidgetId: string;
     valueLocator: ILocator; 
-    value: IAsyncStatus<IVariableValue>; 
+    value?: IAsyncStatus<IVariableToSet>; 
 }
 
 /**
@@ -49,6 +52,7 @@ export interface ISetWorkshopValue {
  */
 export interface IExecuteWorkshopEvent {
     type: MESSAGE_TYPES_TO_WORKSHOP.EXECUTING_EVENT;
+    iframeWidgetId: string;
     eventLocator: ILocator; 
 }
 
@@ -65,7 +69,7 @@ export type IMessageFromWorkshop =
  */
 export interface IWorkshopAcceptedConfigMessage {
     type: MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_ACCEPTED; 
-    initialConfigValues: IConfigDefinition;
+    iframeWidgetId: string;
 }
 
 /**
@@ -74,6 +78,7 @@ export interface IWorkshopAcceptedConfigMessage {
  */
 export interface IWorkshopRejectedConfigMessage {
     type: MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_REJECTED; 
+    iframeWidgetId: string;
 }
         
 /**
@@ -82,7 +87,8 @@ export interface IWorkshopRejectedConfigMessage {
  */
 export interface IValueChangeFromWorkshopMessage {
     type: MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE; 
-    configValues: IConfigDefinition;
+    iframeWidgetId: string;
+    inputValues: IConfigValueMap;
 }
 
 export enum MESSAGE_TYPES_TO_WORKSHOP {
@@ -93,24 +99,6 @@ export enum MESSAGE_TYPES_TO_WORKSHOP {
     
 export enum MESSAGE_TYPES_FROM_WORKSHOP {
     CONFIG_ACCEPTED = "workshop-accepted-config",
-    CONFIG_REJECTED = "workshop-did-not-accept-config",
+    CONFIG_REJECTED = "workshop-rejected-config",
     VALUE_CHANGE = "workshop-value-change", 
-}
-
-/**
- * Represents the path to a value in the config
- */
-export type ILocator = ILocator_Single | ILocator_ListOf;
-export interface ILocator_Single {
-    type: "single";
-    configFieldId: string;
-}
-/**
- * Traverses tho the configFieldId which should be a listOf, and then indexes into it and continues traversing along the path to the value.
- */
-export interface ILocator_ListOf {
-    type: "listOf";
-    configFieldId: string;
-    index: number;
-    locator: ILocator;
 }

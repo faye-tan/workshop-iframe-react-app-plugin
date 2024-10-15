@@ -13,50 +13,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-import { IConfigDefinition } from "./types/configDefinition";
-import { IMessageToWorkshop, MESSAGE_TYPES_TO_WORKSHOP } from "./types/messages";
+import { IMessageToWorkshop } from "./types/messages";
 
 /**
- * Sends a message to Workshop through the parent window.
+ * Sends a message to Workshop through the parent window
  */
 export function sendMessageToWorkshop(message: IMessageToWorkshop) {
-    window.parent.postMessage(JSON.stringify(message), "*");
+    window.parent.postMessage(message, "*");
 }
 
 /**
- * Detect whether app is in Dev Console in order to use default values 
+ * Detect whether app is being iframed. Excludes VS code workspaces for the purposes of development. 
  */
-export function isInsideIframe(): boolean { 
-    // TODO generalize this to all stacks
-    const isIframedInDevConsole = window.self.location.origin !== "https://swirl-containers.palantirfoundry.com";
+export function isInsideNonVSCodeWorkspacesIframe(): boolean { 
+    console.log("child iframe: is application being iframed? ", window.self.location.origin, window.self !== window.top, window !== window.parent);
 
+    // TODO: verify this
+    if (window.self.location.origin.includes("containers.palantirfoundry.com")) {
+        return false;
+    }
     // Need try/catch since browsers can block access to window.top due to same origin policy. IE bugs also take place.
     try {
-        return window.self !== window.top || isIframedInDevConsole;
+        return window.self !== window.top || window !== window.parent;
     } catch (e) {
         return true;
     }
 }
-
-/**
- * Throws an error when a value isn't a `never` as expected. Used for guaranteeing exhaustive checks
- * and preventing further code from running when in an unexpected state.
- *
- * @param message A description of why a `never` type is expected.
- * @param value   The value that should be `never`.
- */
-export function assertNever(message: string, value: never): never {
-    throw new Error(`assertNever condition failed: ${message} (${JSON.stringify(value)})`);
-}
-
-/**
-     * Pass the config definition to Workshop
-     * If it's on a brand new iframe widget, the definition gets saved
-     * If it's on an existing iframe widget, the definition gets reconciled with the saved definition. 
-     */
-export function sendConfigDefinitionToWorkshop(configFields: IConfigDefinition) {
-    sendMessageToWorkshop({
-        type: MESSAGE_TYPES_TO_WORKSHOP.SENDING_CONFIG, 
-        config: configFields, 
-    })
-} 

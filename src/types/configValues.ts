@@ -16,15 +16,18 @@
 /**
  * This is the type that Workshop and iframe will pass back and forth
  */
+import { IAsyncStatus } from "./loadingState";
 import { IVariableValue } from "./variableValues";
 
 export interface IConfigValueMap {
     [fieldId: string]: IConfigValueType; 
 }
-type IConfigValueType = IConfigValueType_Single | IConfigValueType_ListOf; 
+export type IConfigValueType = IConfigValueType_Single | IConfigValueType_ListOf; 
 interface IConfigValueType_Single {
-    value: IVariableValue;
+    type: "single";
+    value?: IAsyncStatus<IVariableValue>;
 }
 interface IConfigValueType_ListOf {
+    type: "listOf";
     listOfValues: IConfigValueMap[];
 }

@@ -14,6 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-export { useWorkshopContext } from "./useWorkshopContext";
-export * from "./types";
-export { isInsideNonVSCodeWorkspacesIframe } from "./utils";
+/**
+ * Represents the path to a value in the config
+ */
+export type ILocator = ILocator_Single | ILocator_ListOf;
+export interface ILocator_Single {
+    type: "single";
+    configFieldId: string;
+}
+/**
+ * Traverses tho the configFieldId which should be a listOf, and then indexes into it and continues traversing along the path to the value.
+ */
+export interface ILocator_ListOf {
+    type: "listOf";
+    configFieldId: string;
+    index: number;
+    locator: ILocator;
+}

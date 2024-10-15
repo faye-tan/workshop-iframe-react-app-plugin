@@ -12,9 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { IVariableType } from "./variableTypes";
-import { IVariableValue } from "./variableValues";
+import { IVariableType_WithDefaultValue } from "./variableTypeWithDefaultValue";
 
 export type IConfigDefinition = readonly IConfigDefinitionField[];
 export interface IConfigDefinitionField {
@@ -25,22 +23,15 @@ export type IConfigurationFieldType = IConfigDefinitionFieldType_Single | IConfi
 
 interface IConfigDefinitionFieldType_Single {
     type: "single"; 
-    isRequired?: boolean; 
-    fieldType: IConfigDefinitionFieldType; 
+    fieldValue: IConfigDefinitionFieldType; 
     label: string; 
     helperText?: string; 
 }
 
-type IConfigDefinitionFieldType = IConfigDefinitionFieldType_Input | IConfigDefinitionFieldType_Output | IConfigDefinitionFieldType_Event; 
-interface IConfigDefinitionFieldType_Input {
-    type: "input"; 
-    inputVariableType: IVariableType;
-    /** Set the default value for an input variable */
-    value?: IVariableValue;
-}
-interface IConfigDefinitionFieldType_Output {
-    type: "output"; 
-    outputVariableType: IVariableType; 
+export type IConfigDefinitionFieldType = IConfigDefinitionFieldType_InputOutput | IConfigDefinitionFieldType_Event; 
+interface IConfigDefinitionFieldType_InputOutput {
+    type: "inputOutput"; 
+    variableType: IVariableType_WithDefaultValue;
 }
 interface IConfigDefinitionFieldType_Event {
     type: "event"; 
@@ -52,5 +43,4 @@ interface IConfigDefinitionFieldType_ListOf {
     label: string; 
     helperText?: string; 
     addButtonText?: string;
-    defaultLength?: number; 
 }

@@ -19,7 +19,7 @@ export type IVariableType =
     | IVariableType_Date
     | IVariableType_Timestamp
     | IVariableType_List
-    | IVariableType_Struct
+    // | IVariableType_Struct // TODO: not fully supported
     | IVariableType_ObjectSet;
 
 // Workshop only supports arrays containing the following types
@@ -78,4 +78,5 @@ export interface IStructVariableFieldTypes {
 
 export interface IVariableType_ObjectSet {
     type: "objectSet";
+    objectTypeId: string;
 }

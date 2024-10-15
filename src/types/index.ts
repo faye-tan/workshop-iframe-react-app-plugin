@@ -13,7 +13,5 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-
-export { useWorkshopContext } from "./useWorkshopContext";
-export * from "./types";
-export { isInsideNonVSCodeWorkspacesIframe } from "./utils";
+export type { IWorkshopContext } from "./workshopContext";
+export * from "./loadingState";

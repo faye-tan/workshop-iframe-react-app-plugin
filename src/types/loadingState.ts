@@ -38,6 +38,7 @@ interface IAsyncStatus_Loaded<V> {
 }
 
 interface IAsyncStatus_Reloading<V> {
+    progress?: number;
     status: "RELOADING"; 
     value: V; 
 }
@@ -83,6 +84,14 @@ export function asyncStatusFailed<E>(error: E): IAsyncStatus_Failed<E> {
         status: "FAILED", 
         error, 
     }
+}
+
+export function asyncReloading<V>(value: V, progress?: number): IAsyncStatus_Reloading<V> {
+    return {
+        progress,
+        status: "RELOADING",
+        value,
+    };
 }
 
 export function isAsyncStatusNotStarted<V, E>(
