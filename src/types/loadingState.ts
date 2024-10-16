@@ -15,99 +15,179 @@ limitations under the License.
  */
 
 /**
- * Final composite 'async' loading types. 
+ * Final composite 'async' loading types.
+ * 
+ * @type V The value type
+ * @type E The error type, defaults to `unknown`
  */
-export type IAsyncStatus<V, E = unknown> = 
-    | IAsyncStatus_NotStarted
-    | IAsyncStatus_Loading
-    | IAsyncStatus_Loaded<V>
-    | IAsyncStatus_Reloading<V>
-    | IAsyncStatus_Failed<E>;
+export type IAsyncLoaded<V, E = unknown> =
+  | IAsyncLoaded_NotStarted
+  | IAsyncLoaded_Loading
+  | IAsyncLoaded_Loaded<V>
+  | IAsyncLoaded_Reloading<V>
+  | IAsyncLoaded_Failed<E>;
 
-interface IAsyncStatus_NotStarted {
-    status: "NOT_STARTED" | undefined; 
-}
-
-interface IAsyncStatus_Loading {
-    status: "LOADING"; 
-}
-
-interface IAsyncStatus_Loaded<V> {
-    status: "LOADED"; 
-    value: V;
-}
-
-interface IAsyncStatus_Reloading<V> {
-    progress?: number;
-    status: "RELOADING"; 
-    value: V; 
-}
-
-interface IAsyncStatus_Failed<E> {
-    status: "FAILED"; 
-    error: E; 
+/**
+ * State that represents that loading hasn't started yet.
+ */
+interface IAsyncLoaded_NotStarted {
+  status: "NOT_STARTED" | undefined;
 }
 
 /**
- * State that represents that loading has not yet started. 
+ * State that represents that loading is in progress.
  */
-export function asyncStatusNotStarted(): IAsyncStatus_NotStarted {
-    return {
-        status: undefined, 
-    };
+interface IAsyncLoaded_Loading {
+  status: "LOADING";
 }
 
 /**
- * State that represents that loading is in progress. 
+ * State that represents that loading has completed successfully.
+ * 
+ * @type V: The value type
  */
-export function asyncStatusLoading(): IAsyncStatus_Loading {
-    return {
-        status: "LOADING",
-    }
+interface IAsyncLoaded_Loaded<V> {
+  status: "LOADED";
+  value: V;
 }
 
 /**
- * State that represents that loading has completed. 
+ * State that represents that reloading is in progress.
+ * 
+ * @type V: The value type
  */
-export function asyncStatusLoaded<V>(value: V): IAsyncStatus_Loaded<V> {
-    return {
-        status: "LOADED", 
-        value, 
-    }
+interface IAsyncLoaded_Reloading<V> {
+  progress?: number;
+  status: "RELOADING";
+  value: V;
 }
 
 /**
- * State that represents that there was a failure and loading could not be completed.
+ * State that represents that loading failed.
+ * 
+ * @type E: The error type
  */
-export function asyncStatusFailed<E>(error: E): IAsyncStatus_Failed<E> {
-    return {
-        status: "FAILED", 
-        error, 
-    }
+interface IAsyncLoaded_Failed<E> {
+  status: "FAILED";
+  error: E;
 }
 
-export function asyncReloading<V>(value: V, progress?: number): IAsyncStatus_Reloading<V> {
-    return {
-        progress,
-        status: "RELOADING",
-        value,
-    };
+/**
+ * Helper function for creating "not started" async loading state.
+ */
+export function asyncStatusNotStarted(): IAsyncLoaded_NotStarted {
+  return {
+    status: undefined,
+  };
 }
 
-export function isAsyncStatusNotStarted<V, E>(
-    state: IAsyncStatus<V, E> | undefined,
-): state is IAsyncStatus_NotStarted | undefined {
-    return state == null || state.status == null || state.status === "NOT_STARTED";
+/**
+ * Helper function for creating "loading" async loading state.
+ */
+export function asyncStatusLoading(): IAsyncLoaded_Loading {
+  return {
+    status: "LOADING",
+  };
 }
 
-export function isAsyncStatusLoading<V, E>(state: IAsyncStatus<V, E> | undefined): state is IAsyncStatus_Loading {
-    return state != null && state.status === "LOADING";
+/**
+ * Helper function for creating the "loaded" async loading state.
+ * 
+ * @param value: The loaded value
+ * @type V: The value type
+ */
+export function asyncStatusLoaded<V>(value: V): IAsyncLoaded_Loaded<V> {
+  return {
+    status: "LOADED",
+    value,
+  };
 }
 
-export function isAsyncStatusLoaded<V, E>(state: IAsyncStatus<V, E> | undefined): state is IAsyncStatus_Loaded<V> {
-    return state != null && state.status === "LOADED";
+/**
+ * Helper function for creating the "failed" async loading state.
+ * 
+ * @param error: The error associated with the reason behind the failure
+ * @type E: The error type
+ */
+export function asyncStatusFailed<E>(error: E): IAsyncLoaded_Failed<E> {
+  return {
+    status: "FAILED",
+    error,
+  };
 }
 
-export function isAsyncStatusFailedLoading<V, E>(state: IAsyncStatus<V, E> | undefined): state is IAsyncStatus_Failed<E> {
-    return state != null && state.status === "FAILED";
+/**
+ * Helper function for creating the "failed" async loading state.
+ * 
+ * @param value: The previously loaded value
+ * @param progress: The loading progress percentage
+ * @type V: The value type
+ */
+export function asyncReloading<V>(
+  value: V,
+  progress?: number
+): IAsyncLoaded_Reloading<V> {
+  return {
+    progress,
+    status: "RELOADING",
+    value,
+  };
+}
+
+/**
+ * Type guard for "not started" async loaded state.
+ * 
+ * @param state: The async loaded state to type check
+ * @type V: The value type
+ * @type E: The error type
+ * @returns true only if the asyncloaded state is "not started".
+ */
+export function isAsyncStatus_NotStarted<V, E>(
+  state: IAsyncLoaded<V, E> | undefined
+): state is IAsyncLoaded_NotStarted | undefined {
+  return (
+    state == null || state.status == null || state.status === "NOT_STARTED"
+  );
+}
+
+/**
+ * Type guard for "loading" async loaded state.
+ * 
+ * @param state: The async loaded state to type check
+ * @type V: The value type
+ * @type E: The error type
+ * @returns true only if the asyncloaded state is "loading".
+ */
+export function isAsyncStatus_Loading<V, E>(
+  state: IAsyncLoaded<V, E> | undefined
+): state is IAsyncLoaded_Loading {
+  return state != null && state.status === "LOADING";
+}
+
+/**
+ * Type guard for "loaded" async loaded state.
+ * 
+ * @param state: The async loaded state to type check
+ * @type V: The value type
+ * @type E: The error type
+ * @returns true only if the asyncloaded state is "loaded".
+ */
+export function isAsyncStatus_Loaded<V, E>(
+  state: IAsyncLoaded<V, E> | undefined
+): state is IAsyncLoaded_Loaded<V> {
+  return state != null && state.status === "LOADED";
+}
+
+/**
+ * Type guard for "failed loading" async loaded state.
+ * 
+ * @param state: The async loaded state to type check
+ * @type V: The value type
+ * @type E: The error type
+ * @returns true only if the asyncloaded state is "failed loading".
+ */
+export function isAsyncStatus_FailedLoading<V, E>(
+  state: IAsyncLoaded<V, E> | undefined
+): state is IAsyncLoaded_Failed<E> {
+  return state != null && state.status === "FAILED";
 }

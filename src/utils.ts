@@ -19,23 +19,32 @@ import { IMessageToWorkshop } from "./types/messages";
  * Sends a message to Workshop through the parent window
  */
 export function sendMessageToWorkshop(message: IMessageToWorkshop) {
-    window.parent.postMessage(message, "*");
+  window.parent.postMessage(message, "*");
 }
 
 /**
- * Detect whether app is being iframed. Excludes VS code workspaces for the purposes of development. 
+ * Throws an error when a value isn't a `never` as expected. Used for guaranteeing exhaustive checks
+ * and preventing further code from running when in an unexpected state.
+ *
+ * @param message A description of why a `never` type is expected.
+ * @param value   The value that should be `never`.
  */
-export function isInsideNonVSCodeWorkspacesIframe(): boolean { 
-    console.log("child iframe: is application being iframed? ", window.self.location.origin, window.self !== window.top, window !== window.parent);
+export function assertNever(message: string, value: never): never {
+    throw new Error(`assertNever condition failed: ${message} (${JSON.stringify(value)})`);
+}
 
-    // TODO: verify this
-    if (window.self.location.origin.includes("containers.palantirfoundry.com")) {
-        return false;
-    }
-    // Need try/catch since browsers can block access to window.top due to same origin policy. IE bugs also take place.
-    try {
-        return window.self !== window.top || window !== window.parent;
-    } catch (e) {
-        return true;
-    }
+/**
+ * Detect whether app is being iframed. Excludes Palantir Foundry's VS code workspaces for the purposes of development.
+ */
+export function isInsideIframe(): boolean {
+  if (window.self.location.origin.includes("containers.palantirfoundry.com")) {
+    return false;
+  }
+
+  // Need try/catch since browsers can block access to window.top due to same origin policy. IE bugs also take place.
+  try {
+    return window.self !== window.top || window !== window.parent;
+  } catch (e) {
+    return true;
+  }
 }

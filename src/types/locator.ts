@@ -15,19 +15,16 @@ limitations under the License.
  */
 
 /**
- * Represents the path to a value in the config
+ * Represents the path to a field's value in the config, and is used to traverse the tree of values in the context object.
  */
 export type ILocator = ILocator_Single | ILocator_ListOf;
 export interface ILocator_Single {
-    type: "single";
-    configFieldId: string;
+  type: "single";
+  configFieldId: string;
 }
-/**
- * Traverses tho the configFieldId which should be a listOf, and then indexes into it and continues traversing along the path to the value.
- */
 export interface ILocator_ListOf {
-    type: "listOf";
-    configFieldId: string;
-    index: number;
-    locator: ILocator;
+  type: "listOf";
+  configFieldId: string;
+  index: number;
+  locator: ILocator;
 }

@@ -15,3 +15,5 @@ limitations under the License.
  */
 export type { IWorkshopContext } from "./workshopContext";
 export * from "./loadingState";
+export { IConfigDefinition } from "./configDefinition";
+export { ObjectSetLocators } from "./variableValues";

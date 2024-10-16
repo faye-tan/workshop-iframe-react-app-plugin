@@ -16,4 +16,4 @@ limitations under the License.
 
 export { useWorkshopContext } from "./useWorkshopContext";
 export * from "./types";
-export { isInsideNonVSCodeWorkspacesIframe } from "./utils";
+export { isInsideIframe } from "./utils";
