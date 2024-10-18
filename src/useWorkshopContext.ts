@@ -24,25 +24,28 @@ import {
 } from "./types/loadingState";
 import {
   MESSAGE_TYPES_TO_WORKSHOP,
-  IMessageFromWorkshop,
   MESSAGE_TYPES_FROM_WORKSHOP,
+  IWorkshopAcceptedConfigMessage,
+  IWorkshopRejectedConfigMessage,
+  IValueChangeFromWorkshopMessage,
 } from "./types/messages";
 import { assertNever, isInsideIframe, sendMessageToWorkshop } from "./utils";
 import { IWorkshopContext } from "./types/workshopContext";
 import { IConfigValueMap } from "./types/configValues";
 import { createDefaultConfigValueMap } from "./createDefaultConfigValueMap";
 import { transformConfigWorkshopContext } from "./transformConfigToWorkshopContext";
+import { isEmpty } from "lodash-es";
 
 /**
- * Given the definition of config fields, returns a context object in an async wrapper with properties of the requested fields' IDs, 
- * and depending on the field type, each property contains either a value in an async wrapper with setter methods or a method to execute a Workshop event. 
- * 
+ * Given the definition of config fields, returns a context object in an async wrapper with properties of the requested fields' IDs,
+ * and depending on the field type, each property contains either a value in an async wrapper with setter methods or a method to execute a Workshop event.
+ *
  * @param configFields: IConfigDefinition
  * @returns IAsyncLoaded<IWorkshopContext>, a context object in an async wrapper.
  */
-export function useWorkshopContext<
-  T extends IConfigDefinition
->(configFields: IConfigDefinition): IAsyncLoaded<IWorkshopContext<T>> {
+export function useWorkshopContext<T extends IConfigDefinition>(
+  configFields: IConfigDefinition
+): IAsyncLoaded<IWorkshopContext<T>> {
   // The context's definition
   const [configDefinition] = React.useState<IConfigDefinition>(configFields);
   // The context's values
@@ -56,26 +59,70 @@ export function useWorkshopContext<
   // Boolean checks
   const [isConfigRejectedByWorkshop, setIsConfigRejectedByWorkshop] =
     React.useState<boolean>(false);
-  const [isListenerInitialized, setIsListenerInitialized] =
-    React.useState<boolean>(false);
+  const [
+    isChangeValueListenerInitialized,
+    setIsChangeValueListenerInitialized,
+  ] = React.useState<boolean>(false);
   const [workshopReceivedConfig, setWorkshopReceivedConfig] =
     React.useState<boolean>(false);
 
   // Once on mount, initialize listeners
   React.useEffect(() => {
     sendConfigDefinitionToWorkshop(configFields);
-
-    if (isListenerInitialized) {
-      return;
-    }
-    window.addEventListener("message", messageHandler);
-    setIsListenerInitialized(true);
+    window.addEventListener("message", configMessageHandler);
   }, []);
 
+  // Only once iframeWidgetId is defined should a listener be added for value changes from Workshop
+  React.useEffect(() => {
+    if (isChangeValueListenerInitialized && !isEmpty(iframeWidgetId)) {
+      return;
+    }
+    window.addEventListener("message", changeValueMessageHandler);
+    setIsChangeValueListenerInitialized(true);
+  }, [iframeWidgetId]);
+
   /**
-   * Handles each type of message received from Workshop.
+   * Entire tree of values is passed from Workshop.
    */
-  const messageHandler = (event: MessageEvent<IMessageFromWorkshop>) => {
+  const handleValueChangeFromWorkshop = React.useCallback(
+    (newConfigValues: IConfigValueMap, iframeWidgetIdFromWorkshop: string) => {
+      // Only set map of config values if iframeWidgetId received from Workshop matches saved iframeWidgetId
+      if (iframeWidgetIdFromWorkshop === iframeWidgetId) {
+        setConfigValues(newConfigValues);
+      }
+    },
+    [iframeWidgetId]
+  );
+
+  /**
+   * Handles value change messages received from Workshop.
+   */
+  const changeValueMessageHandler = React.useCallback(
+    (event: MessageEvent<IValueChangeFromWorkshopMessage>) => {
+      if (event.source !== window.parent || window.parent === window) {
+        return;
+      }
+
+      const message = event.data;
+      if (message.type === MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE) {
+        handleValueChangeFromWorkshop(
+          message.inputValues,
+          message.iframeWidgetId
+        );
+        return;
+      }
+    },
+    [handleValueChangeFromWorkshop]
+  );
+
+  /**
+   * Handles config related message received from Workshop.
+   */
+  const configMessageHandler = (
+    event: MessageEvent<
+      IWorkshopAcceptedConfigMessage | IWorkshopRejectedConfigMessage
+    >
+  ) => {
     // only process messages from the parent window (otherwise messages posted by 3rd party widgets may be processed)
     if (event.source !== window.parent || window.parent === window) {
       return;
@@ -89,15 +136,9 @@ export function useWorkshopContext<
       case MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_REJECTED:
         handleWorkshopRejectedConfigMessage();
         return;
-      case MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE:
-        handleValueChangeFromWorkshop(
-          message.inputValues,
-          message.iframeWidgetId
-        );
-        return;
       default:
         assertNever(
-          `Unknown IMessageFromWorkshop type ${message} when handling a message from Workshop`,
+          `Unknown IMessageFromWorkshop type ${message} when handling a config message from Workshop`,
           message
         );
     }
@@ -116,19 +157,6 @@ export function useWorkshopContext<
    */
   const handleWorkshopRejectedConfigMessage = () => {
     setIsConfigRejectedByWorkshop(true);
-  };
-
-  /**
-   * Entire tree of values is passed from Workshop.
-   */
-  const handleValueChangeFromWorkshop = (
-    newConfigValues: IConfigValueMap,
-    iframeWidgetIdFromWorkshop: string
-  ) => {
-    // Only set map of config values if iframeWidgetId received from Workshop matches saved iframeWidgetId
-    if (iframeWidgetIdFromWorkshop === iframeWidgetId) {
-      setConfigValues(newConfigValues);
-    }
   };
 
   /**

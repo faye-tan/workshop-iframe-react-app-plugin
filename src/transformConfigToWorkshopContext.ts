@@ -14,14 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-import { asyncReloading, asyncStatusFailed, asyncStatusLoaded, asyncStatusLoading, IAsyncLoaded, IConfigDefinition, IWorkshopContext } from "./types";
+import {
+  asyncReloading,
+  asyncStatusFailed,
+  asyncStatusLoaded,
+  asyncStatusLoading,
+  IAsyncLoaded,
+  IConfigDefinition,
+  IWorkshopContext,
+} from "./types";
 import { IConfigValueMap } from "./types/configValues";
 import { ILocator } from "./types/locator";
 import { MESSAGE_TYPES_TO_WORKSHOP } from "./types/messages";
 import { isOntologyObject } from "./types/ontologyObject";
 import { IVariableType_WithDefaultValue } from "./types/variableTypeWithDefaultValue";
 import { IVariableToSet, IVariableValue } from "./types/variableValues";
-import { ExecutableEvent, IWorkshopContextField, ValueAndSetterMethods, VariableTypeToValueTypeToSet } from "./types/workshopContext";
+import {
+  ExecutableEvent,
+  IWorkshopContextField,
+  ValueAndSetterMethods,
+  VariableTypeToValueTypeToSet,
+} from "./types/workshopContext";
 import { assertNever, sendMessageToWorkshop } from "./utils";
 
 // Currently, object sets are limited to 10000 objects. This limit will be removed when osdk supports materializing objects from temporary ObjectRids.
@@ -38,7 +51,10 @@ const MAX_OBJECTS = 10000;
  *
  * @returns IWorkshopContext, the context object.
  */
-export function transformConfigWorkshopContext<T extends IConfigDefinition, V extends IVariableType_WithDefaultValue>(
+export function transformConfigWorkshopContext<
+  T extends IConfigDefinition,
+  V extends IVariableType_WithDefaultValue
+>(
   config: T,
   configValues: IConfigValueMap,
   setConfigValues: (newConfigValues: IConfigValueMap) => void,
@@ -47,9 +63,8 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
     createLocatorInListCallback: (locator: ILocator) => ILocator;
   }
 ): IWorkshopContext<T> {
-
-  // Recursively traverses the value map and updates it when given 
-  // a value and valueLocator path through the value map tree. 
+  // Recursively traverses the value map and updates it when given
+  // a value and valueLocator path through the value map tree.
   const createNewConfigValueMapWithValueChange = (
     configValueMap: IConfigValueMap,
     valueLocator: ILocator,
@@ -103,7 +118,7 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
 
   // Before setting objectSet information in the context's value map, extract the primaryKeys,
   // which is OSDK's preffered format to load objects with
-  const maybeExtractObjectRidsFromVariableTypeToValueValue = <
+  const maybeExtractPrimaryKeysFromVariableTypeToValueValue = <
     V extends IVariableType_WithDefaultValue
   >(
     value?: VariableTypeToValueTypeToSet<V>
@@ -117,7 +132,7 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
         return {
           type: "string",
           primaryKeys: value
-            .slice(MAX_OBJECTS)
+            .slice(0, MAX_OBJECTS)
             .map((ontologyObject) => ontologyObject.$primaryKey) as string[],
         };
       } else if (
@@ -128,7 +143,7 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
         return {
           type: "number",
           primaryKeys: value
-            .slice(MAX_OBJECTS)
+            .slice(0, MAX_OBJECTS)
             .map((ontologyObject) => ontologyObject.$primaryKey) as number[],
         };
       }
@@ -137,7 +152,7 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
     return value;
   };
 
-  // Before sending objectSet information to Workshop, extract the objectRids, 
+  // Before sending objectSet information to Workshop, extract the objectRids,
   // which is Workshop's locator format to load objects with
   const maybeExtractObjectRidsFromVariableTypeToValueTypeToSet = <
     V extends IVariableType_WithDefaultValue
@@ -147,7 +162,7 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
     if (Array.isArray(value) && value.every(isOntologyObject)) {
       return {
         objectRids: value
-          .slice(MAX_OBJECTS)
+          .slice(0, MAX_OBJECTS)
           .map((ontologyObject) => ontologyObject.$rid),
       };
     }
@@ -159,7 +174,7 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
     <V extends IVariableType_WithDefaultValue>(valueLocator: ILocator) =>
     (value?: VariableTypeToValueTypeToSet<V>) => {
       const variableValue =
-        maybeExtractObjectRidsFromVariableTypeToValueValue(value);
+        maybeExtractPrimaryKeysFromVariableTypeToValueValue(value);
       setConfigValues(
         createNewConfigValueMapWithValueChange(
           configValues,
@@ -192,7 +207,7 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
     <V extends IVariableType_WithDefaultValue>(valueLocator: ILocator) =>
     (value?: VariableTypeToValueTypeToSet<V>) => {
       const variableValue =
-        maybeExtractObjectRidsFromVariableTypeToValueValue(value);
+        maybeExtractPrimaryKeysFromVariableTypeToValueValue(value);
       setConfigValues(
         createNewConfigValueMapWithValueChange(
           configValues,
@@ -218,7 +233,7 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
       }
     };
 
-  // Returns a callback to set a context field as "loading" 
+  // Returns a callback to set a context field as "loading"
   const createSetLoadingCallback = (valueLocator: ILocator) => () => {
     // Only able to send message to workshop if iframeWidgetId was received
     if (iframeWidgetId != null) {
@@ -246,21 +261,24 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
     };
 
   // Returns a callback to execute an event in Workshop
-  const createExecuteEventCallback = (eventLocator: ILocator) => () => {
-    // Only able to send message to workshop if iframeWidgetId was received
-    if (iframeWidgetId != null) {
-      sendMessageToWorkshop({
-        type: MESSAGE_TYPES_TO_WORKSHOP.EXECUTING_EVENT,
-        iframeWidgetId,
-        eventLocator,
-      });
-    }
-  };
+  const createExecuteEventCallback =
+    (eventLocator: ILocator) =>
+    (mouseEvent?: MouseEvent | React.KeyboardEvent) => {
+      // Only able to send message to workshop if iframeWidgetId was received
+      if (iframeWidgetId != null) {
+        sendMessageToWorkshop({
+          type: MESSAGE_TYPES_TO_WORKSHOP.EXECUTING_EVENT,
+          iframeWidgetId,
+          eventLocator,
+          mouseEvent,
+        });
+      }
+    };
 
   const workshopContext: { [fieldId: string]: IWorkshopContextField<T, V> } =
     {};
 
-  // Populate the context object from the config fields 
+  // Populate the context object from the config fields
   config.forEach((fieldDefinition) => {
     const { fieldId, field } = fieldDefinition;
     switch (field.type) {
@@ -274,7 +292,7 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
                     type: "single",
                     configFieldId: fieldId,
                   });
-                  workshopContext[fieldId] = {
+            workshopContext[fieldId] = {
               executeEvent: createExecuteEventCallback(locator),
             } as ExecutableEvent;
             return;
@@ -287,8 +305,9 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
                     type: "single",
                     configFieldId: fieldId,
                   });
-                  workshopContext[fieldId] = {
+            workshopContext[fieldId] = {
               fieldValue:
+                configValues[fieldId] != null &&
                 configValues[fieldId].type === "single"
                   ? configValues[fieldId].value
                   : undefined,
@@ -319,12 +338,18 @@ export function transformConfigWorkshopContext<T extends IConfigDefinition, V ex
             };
           const listOfValues = configValues[fieldId].listOfValues;
           workshopContext[fieldId] = listOfValues.map((listOfValue, index) =>
-            transformConfigWorkshopContext(field.config, listOfValue, setConfigValues, iframeWidgetId, {
-              createLocatorInListCallback: createLocator(index),
-            })
+            transformConfigWorkshopContext(
+              field.config,
+              listOfValue,
+              setConfigValues,
+              iframeWidgetId,
+              {
+                createLocatorInListCallback: createLocator(index),
+              }
+            )
           );
         } else {
-            workshopContext[fieldId] = [];
+          workshopContext[fieldId] = [];
         }
         return;
       default:

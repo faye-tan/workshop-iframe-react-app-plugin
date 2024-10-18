@@ -48,7 +48,6 @@ export function createDefaultConfigValueMap(
               configField.field.fieldValue
             );
         }
-        return;
 
       case "listOf":
         configValueMap[configField.fieldId] = {
