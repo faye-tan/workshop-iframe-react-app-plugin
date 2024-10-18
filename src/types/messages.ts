@@ -100,5 +100,5 @@ export interface IWorkshopRejectedConfigMessage {
 export interface IValueChangeFromWorkshopMessage {
   type: MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE;
   iframeWidgetId: string;
-  inputValues: IConfigValueMap;
+  configValues: IConfigValueMap;
 }

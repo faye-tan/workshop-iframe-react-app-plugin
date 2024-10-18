@@ -106,7 +106,7 @@ export function useWorkshopContext<T extends IConfigDefinition>(
       const message = event.data;
       if (message.type === MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE) {
         handleValueChangeFromWorkshop(
-          message.inputValues,
+          message.configValues,
           message.iframeWidgetId
         );
         return;
