@@ -25,16 +25,13 @@ import {
 import {
   MESSAGE_TYPES_TO_WORKSHOP,
   MESSAGE_TYPES_FROM_WORKSHOP,
-  IWorkshopAcceptedConfigMessage,
-  IWorkshopRejectedConfigMessage,
-  IValueChangeFromWorkshopMessage,
+  IMessageFromWorkshop,
 } from "./types/messages";
-import { assertNever, isInsideIframe, sendMessageToWorkshop } from "./utils";
+import { isInsideIframe, sendMessageToWorkshop } from "./utils";
 import { IWorkshopContext } from "./types/workshopContext";
 import { IConfigValueMap } from "./types/configValues";
 import { createDefaultConfigValueMap } from "./createDefaultConfigValueMap";
 import { transformConfigWorkshopContext } from "./transformConfigToWorkshopContext";
-import { isEmpty } from "lodash-es";
 
 /**
  * Given the definition of config fields, returns a context object in an async wrapper with properties of the requested fields' IDs,
@@ -59,117 +56,56 @@ export function useWorkshopContext<T extends IConfigDefinition>(
   // Boolean checks
   const [isConfigRejectedByWorkshop, setIsConfigRejectedByWorkshop] =
     React.useState<boolean>(false);
-  const [
-    isChangeValueListenerInitialized,
-    setIsChangeValueListenerInitialized,
-  ] = React.useState<boolean>(false);
   const [workshopReceivedConfig, setWorkshopReceivedConfig] =
     React.useState<boolean>(false);
 
-  // Once on mount, initialize listeners
-  React.useEffect(() => {
-    sendConfigDefinitionToWorkshop(configFields);
-    window.addEventListener("message", configMessageHandler);
-  }, []);
-
-  // Only once iframeWidgetId is defined should a listener be added for value changes from Workshop
-  React.useEffect(() => {
-    if (isChangeValueListenerInitialized && !isEmpty(iframeWidgetId)) {
-      return;
-    }
-    window.addEventListener("message", changeValueMessageHandler);
-    setIsChangeValueListenerInitialized(true);
-  }, [iframeWidgetId]);
-
   /**
-   * Entire tree of values is passed from Workshop.
+   * Handles each type of message received from Workshop.
    */
-  const handleValueChangeFromWorkshop = React.useCallback(
-    (newConfigValues: IConfigValueMap, iframeWidgetIdFromWorkshop: string) => {
-      // Only set map of config values if iframeWidgetId received from Workshop matches saved iframeWidgetId
-      if (iframeWidgetIdFromWorkshop === iframeWidgetId) {
-        setConfigValues(newConfigValues);
-      }
-    },
-    [iframeWidgetId]
-  );
-
-  /**
-   * Handles value change messages received from Workshop.
-   */
-  const changeValueMessageHandler = React.useCallback(
-    (event: MessageEvent<IValueChangeFromWorkshopMessage>) => {
+  const messageHandler = React.useCallback(
+    (event: MessageEvent<IMessageFromWorkshop>) => {
+      // only process messages from the parent window (otherwise messages posted by 3rd party widgets may be processed)
       if (event.source !== window.parent || window.parent === window) {
         return;
       }
-
       const message = event.data;
-      if (message.type === MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE) {
-        handleValueChangeFromWorkshop(
-          message.configValues,
-          message.iframeWidgetId
-        );
-        return;
+      switch (message.type) {
+        case MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_ACCEPTED:
+          setIframeWidgetId(message.iframeWidgetId);
+          setWorkshopReceivedConfig(true);
+          setConfigValues(message.configValues);
+          return;
+        case MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_REJECTED:
+          setIframeWidgetId(message.iframeWidgetId);
+          setIsConfigRejectedByWorkshop(true);
+          return;
+        case MESSAGE_TYPES_FROM_WORKSHOP.VALUE_CHANGE:
+          if (message.iframeWidgetId === iframeWidgetId) {
+            setConfigValues(message.configValues);
+          }
+          return;
       }
     },
-    [handleValueChangeFromWorkshop]
+    [
+      iframeWidgetId,
+    ]
   );
 
-  /**
-   * Handles config related message received from Workshop.
-   */
-  const configMessageHandler = (
-    event: MessageEvent<
-      IWorkshopAcceptedConfigMessage | IWorkshopRejectedConfigMessage
-    >
-  ) => {
-    // only process messages from the parent window (otherwise messages posted by 3rd party widgets may be processed)
-    if (event.source !== window.parent || window.parent === window) {
-      return;
-    }
-
-    const message = event.data;
-    switch (message.type) {
-      case MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_ACCEPTED:
-        handleWorkshopAcceptedConfigMessage(message.iframeWidgetId);
-        return;
-      case MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_REJECTED:
-        handleWorkshopRejectedConfigMessage();
-        return;
-      default:
-        assertNever(
-          `Unknown IMessageFromWorkshop type ${message} when handling a config message from Workshop`,
-          message
-        );
-    }
-  };
-
-  /**
-   * Only receives a message of type IWorkshopAcceptedConfigMessage, and once received, fills in values, outputTypes, eventIds with given values.
-   */
-  const handleWorkshopAcceptedConfigMessage = (iframeWidgetId: string) => {
-    setWorkshopReceivedConfig(true);
-    setIframeWidgetId(iframeWidgetId);
-  };
-
-  /**
-   * This will determine whether the hook should return asyncFailedLoaded status
-   */
-  const handleWorkshopRejectedConfigMessage = () => {
-    setIsConfigRejectedByWorkshop(true);
-  };
-
-  /**
-   * Pass the config definition to Workshop
-   * If it's on a brand new iframe widget, the definition gets saved
-   * If it's on an existing iframe widget, the definition gets reconciled with the saved definition.
-   */
-  const sendConfigDefinitionToWorkshop = (configFields: IConfigDefinition) => {
+  // Once on mount
+  React.useEffect(() => {
     sendMessageToWorkshop({
-      type: MESSAGE_TYPES_TO_WORKSHOP.SENDING_CONFIG,
-      config: configFields,
+        type: MESSAGE_TYPES_TO_WORKSHOP.SENDING_CONFIG, 
+        config: configFields, 
     });
-  };
+  }, []);
+
+  React.useEffect(() => {
+    window.addEventListener("message", messageHandler);
+
+    return () => {
+        window.removeEventListener("message", messageHandler);
+    }
+}, [messageHandler]);
 
   const insideIframe = isInsideIframe();
 

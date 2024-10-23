@@ -325,7 +325,7 @@ export function transformConfigWorkshopContext<
             );
         }
       case "listOf":
-        if (configValues[fieldId].type === "listOf") {
+        if (configValues[fieldId] != null && configValues[fieldId].type === "listOf") {
           const createLocator =
             (index: number) =>
             (locator: ILocator): ILocator => {
@@ -337,17 +337,19 @@ export function transformConfigWorkshopContext<
               };
             };
           const listOfValues = configValues[fieldId].listOfValues;
-          workshopContext[fieldId] = listOfValues.map((listOfValue, index) =>
-            transformConfigWorkshopContext(
-              field.config,
-              listOfValue,
-              setConfigValues,
-              iframeWidgetId,
-              {
-                createLocatorInListCallback: createLocator(index),
-              }
-            )
-          );
+          if (listOfValues != null && listOfValues.length > 0) {
+            workshopContext[fieldId] = listOfValues.map((listOfValue, index) =>
+              transformConfigWorkshopContext(
+                field.config,
+                listOfValue,
+                setConfigValues,
+                iframeWidgetId,
+                {
+                  createLocatorInListCallback: createLocator(index),
+                }
+              )
+            );
+          }
         } else {
           workshopContext[fieldId] = [];
         }

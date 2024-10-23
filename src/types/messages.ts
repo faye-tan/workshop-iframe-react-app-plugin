@@ -82,6 +82,7 @@ export interface IExecuteWorkshopEvent {
 export interface IWorkshopAcceptedConfigMessage {
   type: MESSAGE_TYPES_FROM_WORKSHOP.CONFIG_ACCEPTED;
   iframeWidgetId: string;
+  configValues: IConfigValueMap;
 }
 
 /**
