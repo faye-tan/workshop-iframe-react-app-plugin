@@ -1,0 +1,25 @@
+{
+  "name": "workshop-iframe-react-app-library",
+  "version": "1.0.0",
+  "description": "Library to enable bi-directional communication between Workshop and any custom React app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faye-tan/workshop-iframe-react-app-plugin.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/faye-tan/workshop-iframe-react-app-plugin/issues"
+  },
+  "homepage": "https://github.com/faye-tan/workshop-iframe-react-app-plugin#readme",
+  "dependencies": {
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.4"
+  }
+}
