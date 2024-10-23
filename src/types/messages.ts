@@ -73,7 +73,7 @@ export interface IExecuteWorkshopEvent {
   type: MESSAGE_TYPES_TO_WORKSHOP.EXECUTING_EVENT;
   iframeWidgetId: string;
   eventLocator: ILocator;
-  mouseEvent?: MouseEvent | React.KeyboardEvent;
+  mouseEvent?: MouseEvent;
 }
 
 /**

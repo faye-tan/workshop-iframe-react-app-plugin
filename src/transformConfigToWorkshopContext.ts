@@ -263,7 +263,7 @@ export function transformConfigWorkshopContext<
   // Returns a callback to execute an event in Workshop
   const createExecuteEventCallback =
     (eventLocator: ILocator) =>
-    (mouseEvent?: MouseEvent | React.KeyboardEvent) => {
+    (mouseEvent?: MouseEvent) => {
       // Only able to send message to workshop if iframeWidgetId was received
       if (iframeWidgetId != null) {
         sendMessageToWorkshop({

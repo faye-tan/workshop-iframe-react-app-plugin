@@ -37,7 +37,7 @@ export interface ExecutableEvent {
    * the users state in the existing tab).
    */
   executeEvent: (
-    mouseEvent: MouseEvent | React.KeyboardEvent | undefined
+    mouseEvent: MouseEvent | undefined
   ) => void;
 }
 
